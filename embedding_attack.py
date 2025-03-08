@@ -16,6 +16,18 @@ def post_proc(token_embeddings, inputs):
     )
     return sentence_embs
 
+def cosine_sim(model, tokenizer, query1, query2):
+    query1_tokenized = tokenizer(query1, return_tensors="pt", padding=False).to(model.device)
+    query2_tokenized = tokenizer(query2, return_tensors="pt", padding=False).to(model.device)
+    q1_embedding = model(**query1_tokenized).last_hidden_state
+    q2_embedding = model(**query2_tokenized).last_hidden_state
+    q1_sent_emb = post_proc(q1_embedding, query1_tokenized).squeeze(0)
+    q2_sent_emb = post_proc(q2_embedding, query2_tokenized).squeeze(0)
+    return torch.nn.CosineSimilarity(dim=0)(
+        q1_sent_emb, q2_sent_emb
+    )
+    
+
 
 def embedding_token_gradient(
     embedding_model,
