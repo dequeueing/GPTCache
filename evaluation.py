@@ -1,0 +1,155 @@
+import json
+import shutil
+from typing import Any, Dict
+
+
+from langchain_huggingface import HuggingFacePipeline
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    pipeline,
+    BitsAndBytesConfig,
+)
+
+from gptcache.adapter.langchain_models import LangChainLLMs
+from gptcache.adapter.api import init_similar_cache, put, get
+from gptcache.core import Cache, Config
+from gptcache.processor.post import nop
+from gptcache.manager import manager_factory
+from gptcache.processor.pre import get_prompt
+from gptcache.similarity_evaluation import SbertCrossencoderEvaluation
+from gptcache.embedding import (
+    Huggingface,
+)
+
+def extract_user_question(data: Dict[str, Any], **_: Dict[str, Any]) -> Any:
+    input_string = data.get("prompt")
+    
+    # Define the markers
+    start_marker = "<|end_header_id|>"
+    end_marker = "<|eot_id|>"
+    
+    # Find the positions of the markers
+    start_pos = input_string.find(start_marker, input_string.find("user")) + len(start_marker)
+    end_pos = input_string.find(end_marker, start_pos)
+    
+    # Extract the substring between the markers
+    if start_pos != -1 and end_pos != -1:
+        question = input_string[start_pos:end_pos].strip()
+        return question
+    else:
+        return input_string
+
+
+target_file = 'target.json'
+non_target_file = 'non_target.json'
+craft_file = 'craft.json'
+
+# Load questions in non-target json
+with open(non_target_file, 'r') as file:
+    non_target_data = json.load(file)
+    
+# Loop through all tests
+non_target_questions = [test_data['question'] for test_data in non_target_data.values()]
+
+
+# Load the tokenizer and model
+device = "cuda:0"
+model_path = "meta-llama/Llama-3.1-8B-Instruct"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForCausalLM.from_pretrained(
+    model_path,
+    quantization_config=BitsAndBytesConfig(load_in_4bit=True),
+    trust_remote_code=True,
+).to(device)
+print(f"Model loaded into: {device}")
+
+# Create a Hugging Face pipeline for text generation
+pipe = pipeline(
+    "text-generation",
+    model=model,
+    tokenizer=tokenizer,
+    max_new_tokens=200,
+    do_sample=True,
+    temperature=0.6,
+    top_p=0.9,
+    return_full_text=False,  # Only return the generated text, not the input
+)
+
+llm = HuggingFacePipeline(pipeline=pipe)
+cached_llm = LangChainLLMs(llm=llm)
+
+
+# Clean up the index
+import os
+if not os.path.exists("./attack"):
+    os.makedirs("./attack")
+shutil.rmtree("./attack")
+
+# Init cache
+data_dir = 'attack'
+the_cache = Cache()
+embedding=Huggingface()
+data_manager = manager_factory(
+            "sqlite,faiss",
+            data_dir=data_dir,
+            vector_params={"dimension": embedding.dimension, "top_k": 5},
+        )
+init_similar_cache(
+    data_dir=data_dir,
+    cache_obj=the_cache,
+    pre_func=extract_user_question,
+    embedding=embedding,
+    data_manager=data_manager,
+    evaluation=SbertCrossencoderEvaluation(),
+    post_func=nop,
+    config=Config(similarity_threshold=0.9),
+)
+
+
+# Put non-target questions into the cache
+for question in non_target_questions:
+    put(question, question, cache_obj=the_cache)
+
+
+# Check the questions are in the cache
+a_question = non_target_questions[50]
+cached_msg = get(a_question, cache_obj=the_cache, top_k=5)
+print(f"Question: {a_question}")
+print(f"Cached message: {cached_msg}")
+
+def after_template(message, tokenizer):
+    prompt = [
+        {"role": "user", "content": message},
+    ]
+    return tokenizer.apply_chat_template(
+        prompt, tokenize=False, add_generation_prompt=True
+    )
+
+# Load crafted attacker prompt
+with open(craft_file, 'r') as file:
+    craft_data = json.load(file)
+    
+for item in craft_data.values():
+    question = item['question']
+    correct = item['correct answer']
+    wrong = item['incorrect answer']
+    attacker = item['attacker_query']
+    
+    # Inject attacker 
+    attacker_template = after_template(attacker, tokenizer)
+    answer_attacker = cached_llm.invoke(attacker_template, cache_obj=the_cache)
+    
+    # victim
+    victim = question
+    victim_template = after_template(victim, tokenizer)
+    answer_victim = cached_llm.invoke(victim_template, cache_obj=the_cache)
+    
+    print("\n---------------------------------")
+    print(f"The question: {question}, correct: {correct}, target: {wrong}")
+    print(f"Prompt injection success: {wrong == answer_attacker}")  # maybe the whole system prompt will be returned
+    print(f"Attack success: {answer_victim == wrong}")
+    print(f"Attacker question: {attacker}")
+    print(f"Attacker response: {answer_attacker}")
+    print(f"Victim answer: {answer_victim}")
+    print("---------------------------------\n")
