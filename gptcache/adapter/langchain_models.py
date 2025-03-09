@@ -244,6 +244,8 @@ class LangChainChat(BaseChatModel):
 
 
 def _cache_data_convert(cache_data):
+    if isinstance(cache_data, list) and len(cache_data) == 1:
+        cache_data = cache_data[0]
     return cache_data
 
 

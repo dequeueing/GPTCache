@@ -41,6 +41,7 @@ class Faiss(VectorBase):
             return None
         if top_k == -1:
             top_k = self._top_k
+        print(f"WTJ: self top_k: {self._top_k}, top_k: {top_k}")
         np_data = np.array(data).astype("float32").reshape(1, -1)
         dist, ids = self._index.search(np_data, top_k)
         ids = [int(i) for i in ids[0]]

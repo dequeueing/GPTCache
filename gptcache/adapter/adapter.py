@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 
-from gptcache import cache
+from gptcache import cache, Cache
 from gptcache.processor.post import temperature_softmax
 from gptcache.utils.error import NotInitError
 from gptcache.utils.log import gptcache_log
@@ -24,7 +24,7 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
     user_temperature = "temperature" in kwargs
     user_top_k = "top_k" in kwargs
     temperature = kwargs.pop("temperature", 0.0)
-    chat_cache = kwargs.pop("cache_obj", cache)
+    chat_cache:Cache = kwargs.pop("cache_obj", cache)
     session = kwargs.pop("session", None)
     require_object_store = kwargs.pop("require_object_store", False)
     if require_object_store:
@@ -52,6 +52,8 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
     else:  # temperature <= 0
         cache_skip = kwargs.pop("cache_skip", False)
     cache_factor = kwargs.pop("cache_factor", 1.0)
+    
+    # preprocess before embedding
     pre_embedding_res = time_cal(
         chat_cache.pre_embedding_func,
         func_name="pre_process",
@@ -74,6 +76,7 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
             pre_embedding_data, chat_cache.config.input_summary_len
         )
 
+    # prompt -> embedding
     if cache_enable:
         embedding_data = time_cal(
             chat_cache.embedding_func,
@@ -81,6 +84,7 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
             report_func=chat_cache.report.embedding,
         )(pre_embedding_data, extra_param=context.get("embedding_func", None))
     if cache_enable and not cache_skip:
+        # search in database    
         search_data_list = time_cal(
             chat_cache.data_manager.search,
             func_name="search",
@@ -92,6 +96,8 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
             if (user_temperature and not user_top_k)
             else kwargs.pop("top_k", -1),
         )
+        print(f"search_data_list: {search_data_list}")
+                
         if search_data_list is None:
             search_data_list = []
         cache_answers = []
@@ -105,6 +111,7 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
             if rank_threshold < min_rank
             else rank_threshold
         )
+        
         for search_data in search_data_list:
             cache_data = time_cal(
                 chat_cache.data_manager.get_scalar_data,
@@ -155,6 +162,8 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
                     "cache_data": cache_data,
                     "embedding": cache_data.embedding_data,
                 }
+                
+            # similarity evaluation
             rank = time_cal(
                 chat_cache.similarity_evaluation.evaluation,
                 func_name="evaluation",
@@ -170,6 +179,7 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
                 cache_data.question,
                 rank,
             )
+            print(f"the rank: {rank}, the rank_threshold: {rank_threshold}")
             if rank_threshold <= rank:
                 cache_answers.append(
                     (float(rank), cache_data.answers[0].answer, search_data, cache_data)
@@ -177,6 +187,8 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
                 chat_cache.data_manager.hit_cache_callback(search_data)
         cache_answers = sorted(cache_answers, key=lambda x: x[0], reverse=True)
         answers_dict = dict((d[1], d) for d in cache_answers)
+                
+        # answer in the cache, return 
         if len(cache_answers) != 0:
             hit_callback = kwargs.pop("hit_callback", None)
             if hit_callback and callable(hit_callback):
@@ -195,6 +207,7 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
                     )
                 return return_message
 
+            # post process
             return_message = time_cal(
                 post_process,
                 func_name="post_process",
@@ -222,8 +235,11 @@ def adapt(llm_handler, cache_data_convert, update_cache_callback, *args, **kwarg
                     cache_whole_data[0],
                     round(time.time() - start_time, 6),
                 )
+            print("cache hit")
             return cache_data_convert(return_message)
 
+    print("cache miss")
+    # answer not in the cache, query LLM
     next_cache = chat_cache.next_cache
     if next_cache:
         kwargs["cache_obj"] = next_cache

@@ -173,6 +173,7 @@ def init_similar_cache(
     if not embedding:
         embedding = Onnx()
     if not data_manager:
+        print(f"the embedding: {type(embedding)}")
         data_manager = manager_factory(
             "sqlite,faiss",
             data_dir=data_dir,

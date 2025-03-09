@@ -48,6 +48,10 @@ class SbertCrossencoderEvaluation(SimilarityEvaluation):
             cache_question = cache_dict["question"]
             if src_question.lower() == cache_question.lower():
                 return 1
+            # print("\n----------------evaluation sbert------------------")
+            # print(f"first question:{src_question}")
+            # print(f"second question:{cache_question}")
+            # print("----------------evaluation sbert------------------\n")
             return self.model.predict([(src_question, cache_question)])[0]
         except Exception: # pylint: disable=W0703
             return 0

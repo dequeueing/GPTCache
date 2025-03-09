@@ -1,6 +1,6 @@
 import json
 import shutil
-from typing import Any, Dict
+from typing import *
 
 
 from langchain_huggingface import HuggingFacePipeline
@@ -16,8 +16,8 @@ from gptcache.adapter.api import init_similar_cache, put, get
 from gptcache.core import Cache, Config
 from gptcache.processor.post import nop
 from gptcache.manager import manager_factory
-from gptcache.processor.pre import get_prompt
-from gptcache.similarity_evaluation import SbertCrossencoderEvaluation
+from gptcache.manager.vector_data.faiss import Faiss
+from gptcache.similarity_evaluation import *
 from gptcache.embedding import (
     Huggingface,
 )
@@ -39,11 +39,29 @@ def extract_user_question(data: Dict[str, Any], **_: Dict[str, Any]) -> Any:
         return question
     else:
         return input_string
+    
+def from_list(messages: List[Any]) -> Any:
+    """No change after evaluation.
+
+    :param messages: A list of candidate outputs.
+    :type messages: List[Any]
+
+    Example:
+        .. code-block:: python
+
+            from gptcache.processor.post import nop
+
+            messages = ["message 1", "message 2", "message 3"]
+            answer = nop(messages)
+            assert answer = messages
+    """
+    return messages[0]
+
 
 
 target_file = 'target.json'
 non_target_file = 'non_target.json'
-craft_file = 'craft.json'
+craft_file = 'black1741500554.1660254.json'
 
 # Load questions in non-target json
 with open(non_target_file, 'r') as file:
@@ -102,6 +120,8 @@ init_similar_cache(
     embedding=embedding,
     data_manager=data_manager,
     evaluation=SbertCrossencoderEvaluation(),
+    # # evaluation=OnnxModelEvaluation(),
+    # evaluation=KReciprocalEvaluation(vectordb=Faiss('./none', 3, 10), top_k=2, max_distance = 4.0, positive=False),
     post_func=nop,
     config=Config(similarity_threshold=0.9),
 )
