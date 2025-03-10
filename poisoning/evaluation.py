@@ -123,7 +123,7 @@ data_manager = manager_factory(
             "sqlite,faiss",
             data_dir=data_dir,
             vector_params={"dimension": embedding.dimension, "top_k": 5},
-            max_size=4000,
+            eviction_params={'max_size': 4000}
         )
 init_similar_cache(
     data_dir=data_dir,
@@ -147,10 +147,12 @@ for question in noise_questions:
 
 
 # Check the questions are in the cache
-a_question = noise_questions[3000]
-cached_msg = get(a_question, cache_obj=the_cache, top_k=5)
-print(f"Question: {a_question}")
-print(f"Cached message: {cached_msg}")
+vector_db = the_cache.data_manager.v  # Access the FAISS vector store
+vector_count = vector_db.count()
+index_file_size = os.path.getsize(os.path.join(data_dir, "faiss.index"))
+print(f"Total vectors in FAISS: {vector_count}")
+print(f"FAISS index file size (bytes): {index_file_size}")
+assert vector_count == len(noise_questions)
 
 
 def after_template(message, tokenizer):
