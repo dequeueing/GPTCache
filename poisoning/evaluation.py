@@ -58,17 +58,27 @@ def from_list(messages: List[Any]) -> Any:
     return messages[0]
 
 
+# Change the craft file each time
+noise_file = 'json_files/queries.jsonl'
+craft_file = 'json_files/black1741583474.1990209.json'
 
-target_file = 'target.json'
-non_target_file = 'non_target.json'
-craft_file = 'black1741500554.1660254.json'
+# json or jsonl
+if noise_file.endswith(".jsonl"):
+    print("This is a JSONL file.")
+elif noise_file.endswith(".json"):
+    print("This is a JSON file.")
 
 # Load questions in non-target json
-with open(non_target_file, 'r') as file:
-    non_target_data = json.load(file)
+with open(noise_file, 'r') as file:
+    noise_data = {i: json.loads(line) for i, line in enumerate(file)}
+    
+# Load crafted attacker prompt
+with open(craft_file, 'r') as file:
+    craft_data = json.load(file)
     
 # Loop through all tests
-non_target_questions = [test_data['question'] for test_data in non_target_data.values()]
+target_questions = [item['question'] for item in craft_data.values() ]
+noise_questions = [item['text'] for item in noise_data.values() if item['text'] not in target_questions]
 
 
 # Load the tokenizer and model
@@ -79,6 +89,7 @@ model = AutoModelForCausalLM.from_pretrained(
     model_path,
     quantization_config=BitsAndBytesConfig(load_in_4bit=True),
     trust_remote_code=True,
+    low_cpu_mem_usage=True,
 ).to(device)
 print(f"Model loaded into: {device}")
 
@@ -112,6 +123,7 @@ data_manager = manager_factory(
             "sqlite,faiss",
             data_dir=data_dir,
             vector_params={"dimension": embedding.dimension, "top_k": 5},
+            max_size=4000,
         )
 init_similar_cache(
     data_dir=data_dir,
@@ -122,21 +134,24 @@ init_similar_cache(
     evaluation=SbertCrossencoderEvaluation(),
     # # evaluation=OnnxModelEvaluation(),
     # evaluation=KReciprocalEvaluation(vectordb=Faiss('./none', 3, 10), top_k=2, max_distance = 4.0, positive=False),
-    post_func=nop,
+    post_func=from_list,
     config=Config(similarity_threshold=0.9),
 )
 
+# TODO: exclude queries from chosen target questions
+
 
 # Put non-target questions into the cache
-for question in non_target_questions:
-    put(question, question, cache_obj=the_cache)
+for question in noise_questions:
+    put(question, f"This is a noise question: {question}", cache_obj=the_cache)
 
 
 # Check the questions are in the cache
-a_question = non_target_questions[50]
+a_question = noise_questions[3000]
 cached_msg = get(a_question, cache_obj=the_cache, top_k=5)
 print(f"Question: {a_question}")
 print(f"Cached message: {cached_msg}")
+
 
 def after_template(message, tokenizer):
     prompt = [
@@ -146,10 +161,10 @@ def after_template(message, tokenizer):
         prompt, tokenize=False, add_generation_prompt=True
     )
 
-# Load crafted attacker prompt
-with open(craft_file, 'r') as file:
-    craft_data = json.load(file)
     
+total_attack = len(craft_data)
+success_attack = 0
+success_prompt_injection = 0
 for item in craft_data.values():
     question = item['question']
     correct = item['correct answer']
@@ -166,10 +181,21 @@ for item in craft_data.values():
     answer_victim = cached_llm.invoke(victim_template, cache_obj=the_cache)
     
     print("\n---------------------------------")
+    prompt_injection_sucess = (wrong == answer_attacker)
+    attack_success = (answer_victim == wrong)
     print(f"The question: {question}, correct: {correct}, target: {wrong}")
-    print(f"Prompt injection success: {wrong == answer_attacker}")  # maybe the whole system prompt will be returned
-    print(f"Attack success: {answer_victim == wrong}")
+    print(f"Prompt injection success: {prompt_injection_sucess}")  # maybe the whole system prompt will be returned
+    print(f"Attack success: {attack_success}")
     print(f"Attacker question: {attacker}")
     print(f"Attacker response: {answer_attacker}")
     print(f"Victim answer: {answer_victim}")
+    if attack_success:
+        success_attack += 1
+    if prompt_injection_sucess:
+        success_prompt_injection += 1
+        
     print("---------------------------------\n")
+    
+print(f"total attack: {total_attack}, success: {success_attack}, injection: {success_prompt_injection}")
+print(f"attack success rate: {success_attack / total_attack}")
+print(f"prompt injection success rate: {success_prompt_injection / total_attack}")
