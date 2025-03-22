@@ -23,6 +23,7 @@ from gptcache.embedding import (
 from gptcache.manager import get_data_manager, CacheBase, VectorBase, ObjectBase
 from gptcache.manager import manager_factory
 from gptcache.similarity_evaluation.distance import SearchDistanceEvaluation
+from gptcache.similarity_evaluation import SbertCrossencoderEvaluation
 
 the_cache = Cache()
 embedding=Huggingface()
@@ -36,7 +37,7 @@ init_similar_cache(
     cache_obj=the_cache,
     embedding=embedding,
     data_manager=data_manager,
-    evaluation=SearchDistanceEvaluation(),
+    evaluation=SbertCrossencoderEvaluation(),
     config=Config(similarity_threshold=0.6),
 )
 
@@ -50,19 +51,21 @@ pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 pipe = pipe.to("cuda")
 
 # prompt = "a photo of a cat. DO NOT GENERATE THIS: a photo of an astronaut riding a horse on mars"
-prompt1 = "a photo of an astronaut riding a horse on mars"
-prompt2 = "An image depicting an astronaut mounted on a horse on the planet Mars"
+prompt2 = "a photo of a cat."
+# prompt2 = "dog dog dog dog dog. a photo of an astronaut riding a horse on mars"
+prompt1 = "a photo of a dog!!!!! framed calorie Bolshevikmonth adopted HTCitty"
 start = time.time()
 image1 = pipe(prompt=prompt1, cache_obj=the_cache).images[0]
 print("First time generation:", time.time() - start)
-
 start = time.time()
 image2 = pipe(prompt=prompt2, cache_obj=the_cache).images[0]
 print("Second time generation:", time.time() - start)
 
 # Compare generated images
 diff = ImageChops.difference(image1, image2)
-assert not diff.getbbox(), "Got different images."
+# assert not diff.getbbox(), "Got different images."
+if diff.getbbox():
+    print('Got different images')
 
 # # save images
 image1.save(f"/home/taojie_wang/GPTCache/images/{time.time()}.png")

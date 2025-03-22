@@ -1,5 +1,6 @@
 import json
 import shutil
+import random
 from typing import *
 
 # import sys
@@ -61,8 +62,9 @@ def from_list(messages: List[Any]) -> Any:
 
 
 # Change the craft file each time
-noise_file = 'json_files/queries.jsonl'
-craft_file = 'json_files/white1741583868.0024722.json'
+noise_file = '../json_files/queries.jsonl'
+craft_file = '../json_files/black1741583474.1990209.json'
+noise_amount = 1000
 
 # json or jsonl
 if noise_file.endswith(".jsonl"):
@@ -81,6 +83,7 @@ with open(craft_file, 'r') as file:
 # Loop through all tests
 target_questions = [item['question'] for item in craft_data.values() ]
 noise_questions = [item['text'] for item in noise_data.values() if item['text'] not in target_questions]
+noise_questions = random.sample(noise_questions, noise_amount)
 
 
 # Load the tokenizer and model
@@ -125,7 +128,7 @@ data_manager = manager_factory(
             "sqlite,faiss",
             data_dir=data_dir,
             vector_params={"dimension": embedding.dimension, "top_k": 5},
-            eviction_params={'max_size': 1000}
+            eviction_params={'max_size': noise_amount}
         )
 init_similar_cache(
     data_dir=data_dir,
@@ -137,7 +140,7 @@ init_similar_cache(
     # # evaluation=OnnxModelEvaluation(),
     # evaluation=KReciprocalEvaluation(vectordb=Faiss('./none', 3, 10), top_k=2, max_distance = 4.0, positive=False),
     post_func=from_list,
-    config=Config(similarity_threshold=0.9),
+    config=Config(similarity_threshold=0.8),
 )
 
 # Put non-target questions into the cache
