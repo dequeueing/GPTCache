@@ -415,6 +415,7 @@ def find_suffix_indices(attacker: str, suffix: str) -> list[int]:
 def craft_malicious(target_question, target):
     # Preprocess target question
     target_question = target_question.strip() + " "
+    target_words = target_question.split()
 
     # Prepare attacker prompt
     victim_query = target_question
