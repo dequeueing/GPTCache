@@ -32,10 +32,14 @@ prompts = {
 }
 
 
-for itme in prompts.values():
-    victim = itme[0]
-    target = itme[1]
-    attack = target + victim
+# for itme in prompts.values():
+#     victim = itme[0]
+#     target = itme[1]
+#     attack = target + victim
     
-    image = generate(attack)
-    image.save(f"{target}_{victim}.png")
+#     image = generate(attack)
+#     image.save(f"{target}_{victim}.png")
+
+p = 'pegasus yorkshire wwii taken a picture of the ocean'
+image = generate(p)
+image.save('wow.png')

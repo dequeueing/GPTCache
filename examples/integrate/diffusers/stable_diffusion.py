@@ -1,9 +1,9 @@
 import time
 import sys
-gptcache_path = '/home/taojie_wang/GPTCache'
+gptcache_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache'
 sys.path.insert(0, gptcache_path)
 
-data_dir = '/home/taojie_wang/GPTCache/multimodal'
+data_dir = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/multimodal'
 import shutil
 import os
 if os.path.isdir(data_dir):
@@ -68,7 +68,7 @@ if diff.getbbox():
     print('Got different images')
 
 # # save images
-image1.save(f"/home/taojie_wang/GPTCache/images/{time.time()}.png")
-image2.save(f"/home/taojie_wang/GPTCache/images/{time.time()}.png")
+image1.save(f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/images/{time.time()}.png")
+image2.save(f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/images/{time.time()}.png")
 
 print("we are done")

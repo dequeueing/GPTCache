@@ -4,7 +4,7 @@ import random
 from typing import *
 
 # import sys
-# sys.path.insert(0, '/home/taojie_wang/GPTCache')
+# sys.path.insert(0, '/home/taojie_wang@idm.teecertlabs.com/GPTCache')
 
 from langchain_huggingface import HuggingFacePipeline
 from transformers import (
