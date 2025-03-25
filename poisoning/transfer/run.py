@@ -60,14 +60,14 @@ def suffix_slice(total_string, substring):
 # Config
 target_function = 'cos_sim' # cos_sim or euclidean
 mode = 'white' # white or black box
-device = "cuda:2"
-num_iter = 50
+device = "cuda"
+num_iter = 20
 # target_question = 'What is the longest river in the world?'
 # target_answer = 'The Amazon River.'
 embedding_model_type = "distilbert-base-uncased"
 semantic_model_type = "cross-encoder/quora-distilroberta-base"
-threshold_sem = 0.9
-threshold_target_function = 0.8
+threshold_sem = 0.7
+threshold_target_function = 0.7
 target_json_file = "nq.json"
 # crafted_json_file = mode + str(time.time()) + '.json'
 crafted_json_file = 'test_euclidean.json'
@@ -83,7 +83,7 @@ semantic_tokenizer = AutoTokenizer.from_pretrained(semantic_model_type)
 
 
 def semantic_score(q1, q2):
-    score = semantic_encoder.predict([(q1, q2)])[0]
+    score = semantic_encoder.predict([(q1, q2)], show_progress_bar=False)[0]
     return score
 
 
@@ -294,10 +294,8 @@ def emb_get_filtered_candidates(
     logging.debug(f"current_control: {current_control}")
     logging.debug(f"new_adv_suffix_toks: {control_candidates}")
 
-    current_query_len = len(semantic_tokenizer(current_query, add_special_tokens=False)['input_ids'])
 
     logging.debug(f"current_query: {current_query}")
-    logging.debug(f"current_query_len: {current_query_len}")
 
     cands = []
     for i in range(control_candidates.shape[0]):
@@ -311,10 +309,6 @@ def emb_get_filtered_candidates(
                 embedding_tokenizer(decoded_str, add_special_tokens=False)["input_ids"]
             )
             == len(control_candidates[i])
-            and len(
-                semantic_tokenizer(new_query, add_special_tokens=False)["input_ids"]
-            )
-            == current_query_len
         ):
             cands.append(decoded_str)
 
@@ -322,7 +316,7 @@ def emb_get_filtered_candidates(
         cands.append(current_control)
         return cands
     
-    cands = cands + [cands[-1]] * (len(control_candidates) - len(cands))
+    # cands = cands + [cands[-1]] * (len(control_candidates) - len(cands))
 
     logging.debug("===========get_filtered_candidates===============\n")
     return cands
@@ -362,147 +356,6 @@ def emb_get_logits(
         if score > max_score:
             max_score = score
             best_suffix = this_suffix
-
-    logging.debug("==========get_logits===============\n")
-    return max_score, best_suffix
-
-
-def sem_token_gradients(
-    attacker_ids,
-    attacker_mask,
-    control_start,
-    control_end,
-    attacker_query,
-    victim_query,
-):
-    logging.debug("\n===========token_gradients===============")
-
-    embedding = semantic_model.get_input_embeddings()
-    logging.debug(f"{embedding}")
-    logging.debug(f"{type(embedding)}")
-    logging.debug(f"{embedding.weight.size()}")
-
-    control_token_ids = attacker_ids[0][control_start : control_end + 1]
-    logging.debug(f"{control_token_ids}")
-
-    control_slice_len = control_end - control_start + 1
-    one_hot = torch.zeros(
-        control_slice_len, embedding.weight.size(0), device=semantic_model.device
-    )
-    control_token_pos = torch.arange(control_slice_len)
-    one_hot[control_token_pos, control_token_ids] = 1
-
-    one_hot.requires_grad_()
-
-    input_embed = (one_hot @ embedding.weight).unsqueeze(0)
-
-    sentences = [(attacker_query, victim_query)]
-    input_tokenized = semantic_tokenizer(
-        sentences, return_tensors="pt", padding=True
-    ).to(semantic_model.device)
-    input_embedding_eg = embedding.weight[input_tokenized["input_ids"]]
-
-    logging.debug(f"shape of input tokenized: {input_tokenized['input_ids'].shape}")
-    logging.debug(f"shape of input_embedding_eg: {input_embedding_eg.shape}")
-    logging.debug(f"content of input tokenized: {input_tokenized['input_ids']}")
-
-    # replaed with one-hoe
-    input_embedding_eg_dup = input_embedding_eg.clone()
-    input_embedding_eg_dup[:, control_start : control_end + 1, :] = input_embed
-
-    # forward
-    semantic_model.eval()
-    model_predictions = semantic_model(
-        inputs_embeds=input_embedding_eg_dup,
-        attention_mask=input_tokenized["attention_mask"],
-        return_dict=True,
-    )
-    logits = nn.Sigmoid()(model_predictions.logits)
-    pred_scores = []
-    pred_scores.extend(logits)
-    pred_score = [score[0] for score in pred_scores][0]
-    logging.debug(f"the prediction: {pred_score}, type of it: {type(pred_score)}")
-
-    # backward
-    pred_score.backward()
-
-    grad = one_hot.grad.clone()
-    grad = grad / grad.norm(dim=-1, keepdim=True)
-
-    logging.debug("===========token_gradients===============\n")
-    return grad
-
-
-def sem_get_filtered_candidates(
-    control_candidates, current_control, current_query, base, suffix_embed
-):
-    logging.debug("\n==========sample_control===============")
-    logging.debug(f"current_control: {current_control}")
-    logging.debug(f"new_adv_suffix_toks: {control_candidates}")
-
-    current_query_len = len(semantic_tokenizer(current_query, add_special_tokens=False)['input_ids'])
-    
-    logging.debug(f"current_query: {current_query}")
-    logging.debug(f"the input ids: {semantic_tokenizer(current_query, add_special_tokens=False)['input_ids']}")
-    logging.debug(f"current_query_len: {current_query_len}")
-
-    cands = []
-    for i in range(control_candidates.shape[0]):
-        decoded_str = semantic_tokenizer.decode(control_candidates[i])
-        new_query = base + suffix_embed + decoded_str
-        if (
-            decoded_str != current_control
-            and len(
-                semantic_tokenizer(decoded_str, add_special_tokens=False)["input_ids"]
-            )
-            == len(control_candidates[i])
-            and len(
-                semantic_tokenizer(new_query, add_special_tokens=False)["input_ids"]
-            )
-            == current_query_len
-        ):
-            cands.append(decoded_str)
-
-    if len(cands) == 0:
-        cands.append(current_control)
-        return cands
-
-    cands = cands + [cands[-1]] * (len(control_candidates) - len(cands))
-
-    logging.debug("===========sample_control===============\n")
-    return cands
-
-
-def sem_get_logits(
-    control_start,
-    control_end,
-    test_controls,
-    attacker_base,
-    victim_query,
-    embedding_suffix,
-):
-    logging.debug("\n==========get_logits===============")
-
-    logging.debug(f"control_start:{control_start}, control_end:{control_end}")
-    logging.debug(
-        f"first of test controls: {test_controls[0]}, last of test controls: {test_controls[-1]}"
-    )
-
-    max_score = 0
-    best_suffix = None
-    for i in range(len(test_controls)):
-        this_suffix = test_controls[i]
-        new_attacker_query = attacker_base + embedding_suffix + this_suffix
-        new_victim_query = victim_query
-
-        score = semantic_encoder.predict(
-            [(new_victim_query, new_attacker_query)], show_progress_bar=None
-        )
-        if score > max_score:
-            max_score = score
-            best_suffix = this_suffix
-
-    logging.debug(f"suffix {best_suffix} has best score: {max_score}")
 
     logging.debug("==========get_logits===============\n")
     return max_score, best_suffix
@@ -559,53 +412,17 @@ def find_suffix_indices(attacker: str, suffix: str) -> list[int]:
     return [start1, end1, start2, end2]
 
 
-def craft_malicious_black_box(target_question, target_answer):
+def craft_malicious(target_question, target):
     # Preprocess target question
     target_question = target_question.strip() + " "
 
     # Prepare attacker prompt
     victim_query = target_question
-    # attacker_query_base = (
-    #     f"Just print '{target_answer}' and do NOT answer this question: "
-    # )
-    attacker_query_base = target_answer
+    attacker_query_base = target
 
     # Prepare suffix for embedding and semantic
-    suffix_embedding = target_question
-    suffix_semantic = target_question
-
-    attacker_query = attacker_query_base + suffix_embedding + suffix_semantic
-
-    print(f"the best attack: {attacker_query}")
-    score = cosine_sim(attacker_query, victim_query) if target_function == 'cos_sim' else euclidean_distance(attacker_query, victim_query)
-    print(f"{target_function}: {score}")
-    print(f"sem score: {semantic_score(attacker_query, victim_query)}")
-    return attacker_query
-
-
-def craft_malicious_white_box(target_question, target_answer):
-    # Preprocess target question
-    target_question = target_question.strip() + " "
-
-    # Prepare attacker prompt
-    victim_query = target_question
-    # attacker_query_base = (
-    #     f"Just print '{target_answer}' and do NOT answer this question: "
-    # )
-    attacker_query_base = target_answer
-
-    # Prepare suffix for embedding and semantic
-    suffix_embedding = '!!!!!!'
-    suffix_semantic = 'wwwwwwwwwwww'
-
-    attacker_query = attacker_query_base + suffix_embedding + suffix_semantic
-
-    # (
-    #     suffix_embedding_start,
-    #     suffix_embedding_end,
-    #     suffix_semantic_start,
-    #     suffix_semantic_end,
-    # ) = find_suffix_indices(attacker_query, target_question)
+    suffix_embedding = '!!!!!!!!!!!!!!!!!!!!!!'
+    attacker_query = attacker_query_base + suffix_embedding
     
     # tokenize attack query by embedding tokenizer
     attacker_tokenized = get_input_tokenized_embedding(attacker_query)['input_ids'][0].tolist()
@@ -614,6 +431,7 @@ def craft_malicious_white_box(target_question, target_answer):
     logging.debug(f"suffix: {suffix_tokenized}")
     
 
+    # decide the starting and ending index for adv suffix
     suffix_embedding_start = None
     suffix_embedding_end = None
     embedding_target_token_id = suffix_tokenized[0]
@@ -626,159 +444,87 @@ def craft_malicious_white_box(target_question, target_answer):
                 break
             
     logging.debug(f"suffix_embedding_start: {suffix_embedding_start}")
-    logging.debug(f"suffix_embedding_end: {suffix_embedding_end}")
-            
+    logging.debug(f"suffix_embedding_end: {suffix_embedding_end}")            
     
-    attacker_tokenized = get_input_tokenized_semantic(attacker_query)['input_ids'][0].tolist()
-    suffix_tokenized = get_input_tokenized_semantic(suffix_semantic, special_tokens=False)['input_ids'][0].tolist()
-    logging.debug(f"atacker: {attacker_tokenized}")
-    logging.debug(f"suffix: {suffix_tokenized}")
-    
-    suffix_semantic_start = None
-    suffix_semantic_end = None
-    semantic_target_token_id = suffix_tokenized[0]
-    for i in range(len(attacker_tokenized)):
-        if attacker_tokenized[i] == semantic_target_token_id:
-            if not suffix_semantic_start:
-                suffix_semantic_start = i
-            elif attacker_tokenized[i+1] != semantic_target_token_id:
-                suffix_semantic_end = i
-                break
-            
-    logging.debug(f"suffix_semantic_start: {suffix_semantic_start}")
-    logging.debug(f"suffix_semantic_end: {suffix_semantic_end}")
 
     # Gradient attack
-    turn = 0  # 1 for embedding update, 0 for semantic updates
-    cnt = 0  # number of updates for either semantic or embedding suffix
     best_sim = 0
     best_attack = attacker_query
     for _ in range(num_iter):
-        # Change turn
-        if turn == 0:
-            if cnt == 10 or (
-                semantic_score(attacker_query, victim_query) >= 0.9 and cnt >= 3
-            ):
-                cnt = 0
-                turn = 1
-        else:
-            if cnt == 10:
-                cnt = 0
-                turn = 0
 
         # Record best attacker query
-        if semantic_score(attacker_query, victim_query) >= threshold_sem:
-            score = cosine_sim(attacker_query, victim_query) if target_function == 'cos_sim' else euclidean_distance(attacker_query, victim_query)
-            if score >= threshold_target_function:
-                if score >= best_sim:
-                    best_sim = score
-                    best_attack = attacker_query
+        # if semantic_score(attacker_query, victim_query) >= threshold_sem:
+        # TODO: we skip semantic evaluation for the time beding
+        score = cosine_sim(attacker_query, victim_query) if target_function == 'cos_sim' else euclidean_distance(attacker_query, victim_query)
+        if score >= threshold_target_function:
+            if score >= best_sim:
+                best_sim = score
+                best_attack = attacker_query
 
         if None in [
             suffix_embedding_start,
             suffix_embedding_end,
-            suffix_semantic_start,
-            suffix_semantic_end,
         ]:
             logging.error("trouble analyzing suffix, two models interfere!")
             return
 
         # Update
-        if turn == 1:
-            attacker_tokenized = get_input_tokenized_embedding(attacker_query)
-            attacker_ids = attacker_tokenized["input_ids"]
-            attacker_mask = attacker_tokenized["attention_mask"]
+        attacker_tokenized = get_input_tokenized_embedding(attacker_query)
+        attacker_ids = attacker_tokenized["input_ids"]
+        attacker_mask = attacker_tokenized["attention_mask"]
 
-            embed_suffix_gradient = embed_token_gradient(
-                attacker_ids,
-                attacker_mask,
-                suffix_embedding_start,
-                suffix_embedding_end,
-                victim_query,
+        embed_suffix_gradient = embed_token_gradient(
+            attacker_ids,
+            attacker_mask,
+            suffix_embedding_start,
+            suffix_embedding_end,
+            victim_query,
+        )
+        
+        
+        with torch.no_grad():
+            adv_control_tokens = attacker_ids[
+                :, suffix_embedding_start : suffix_embedding_end + 1
+            ]
+            logging.debug(f"{adv_control_tokens}")
+
+            new_adv_suffix_toks = sample_control(
+                adv_control_tokens, embed_suffix_gradient, batch_size=512, topk=256
             )
-            with torch.no_grad():
-                adv_control_tokens = attacker_ids[
-                    :, suffix_embedding_start : suffix_embedding_end + 1
-                ]
-                logging.debug(f"{adv_control_tokens}")
-
-                new_adv_suffix_toks = sample_control(
-                    adv_control_tokens, embed_suffix_gradient, batch_size=512, topk=256
-                )
-                new_adv_suffix_text = emb_get_filtered_candidates(
-                    new_adv_suffix_toks,
-                    current_control=suffix_embedding,
-                    current_query=attacker_query,
-                    base=attacker_query_base,
-                    suffix_sem=suffix_semantic,
-                )
-                logging.debug(f"{new_adv_suffix_text}")
-
-                max_score, best_suffix = emb_get_logits(
-                    suffix_semantic=suffix_semantic,
-                    control_start=suffix_embedding_start,
-                    control_end=suffix_embedding_end,
-                    test_controls=new_adv_suffix_text,
-                    attacker_base=attacker_query_base,
-                    victim_query=victim_query,
-                )
-
-                suffix_embedding = best_suffix
-                attacker_query = (
-                    attacker_query_base + suffix_embedding + suffix_semantic
-                )
-                logging.info(
-                    f"{target_function}: {max_score}, the attacker query: {repr(attacker_query)}"
-                )
-
-        else:
-            attacker_tokenized = get_input_tokenized_semantic(attacker_query)
-            attacker_ids = attacker_tokenized["input_ids"]
-            attacker_mask = attacker_tokenized["attention_mask"]
-
-            sem_suffix_gradient = sem_token_gradients(
-                attacker_ids,
-                attacker_mask,
-                suffix_semantic_start,
-                suffix_semantic_end,
-                attacker_query,
-                victim_query,
+            
+        
+            new_adv_suffix_text = emb_get_filtered_candidates(
+                new_adv_suffix_toks,
+                current_control=suffix_embedding,
+                current_query=attacker_query,
+                base=attacker_query_base,
+                suffix_sem="",
             )
-            with torch.no_grad():
-                adv_control_tokens = attacker_ids[
-                    :, suffix_semantic_start : suffix_semantic_end + 1
-                ]
-                new_adv_suffix_toks = sample_control(
-                    adv_control_tokens, sem_suffix_gradient, batch_size=512, topk=256
-                )
+            logging.debug(f"{new_adv_suffix_text}")
+            
 
-                new_adv_suffix_text = sem_get_filtered_candidates(
-                    new_adv_suffix_toks,
-                    current_control=suffix_semantic,
-                    current_query=attacker_query,
-                    base=attacker_query_base,
-                    suffix_embed=suffix_embedding,
-                )
+            max_score, best_suffix = emb_get_logits(
+                suffix_semantic="",
+                control_start=suffix_embedding_start,
+                control_end=suffix_embedding_end,
+                test_controls=new_adv_suffix_text,
+                attacker_base=attacker_query_base,
+                victim_query=victim_query,
+            )
+            
+            logging.info(f"the best suffix: {best_suffix}")
 
-                max_score, best_suffix = sem_get_logits(
-                    embedding_suffix=suffix_embedding,
-                    control_start=suffix_semantic_start,
-                    control_end=suffix_semantic_end,
-                    test_controls=new_adv_suffix_text,
-                    attacker_base=attacker_query_base,
-                    victim_query=victim_query,
-                )
+            suffix_embedding = best_suffix
+            attacker_query = (
+                attacker_query_base + suffix_embedding
+            )
+            logging.info(
+                f"{target_function}: {max_score}, the attacker query: {repr(attacker_query)}"
+            )
+            # print(
+            #     f"{target_function}: {max_score}, the attacker query: {repr(attacker_query)}"
+            # )
 
-                suffix_semantic = best_suffix
-                attacker_query = (
-                    attacker_query_base + suffix_embedding + suffix_semantic
-                )
-                logging.info(
-                    f"Semantic score: {max_score}, the attacker query: {repr(attacker_query)},"
-                )
-
-        # increment update number
-        cnt += 1
 
     print(f"the best attack: {best_attack}")
     print(f"cos sim: {best_sim}")
@@ -791,8 +537,8 @@ if __name__ == "__main__":
     set_logging()
 
     # load json
-    with open(target_json_file, "r") as f:
-        target_data = json.load(f)
+    # with open(target_json_file, "r") as f:
+    #     target_data = json.load(f)
 
     # Craft for each target
     # for item in target_data.values():
@@ -810,10 +556,55 @@ if __name__ == "__main__":
     #     # Save the updated JSON
     #     with open(crafted_json_file, "w") as f:
     #         json.dump(target_data, f, indent=4)
+    
+    
+    victim_target = {
+    1: ("A cat sleeping on a bookshelf", "A rocket launching into space"),
+    2: ("A chef chopping vegetables", "A dolphin jumping out of the water"),
+    3: ("A robot vacuum cleaning the floor", "A mountain climber reaching the summit"),
+    4: ("A child blowing soap bubbles", "A medieval knight holding a sword"),
+    5: ("A jellyfish floating in the deep sea", "A musician playing a violin on stage"),
+    6: ("A construction worker using a jackhammer", "A butterfly resting on a flower"),
+    7: ("A golden retriever chasing a frisbee", "A train moving through a snowy landscape"),
+    8: ("A scientist mixing chemicals in a lab", "A cowboy riding a horse in the desert"),
+    9: ("A giant panda eating bamboo", "A satellite orbiting Earth"),
+    10: ("A street artist painting graffiti", "A penguin sliding on ice"),
+    11: ("A sumo wrestler preparing to fight", "A ballerina performing a pirouette"),
+    12: ("A hot air balloon floating in the sky", "A shark swimming near a coral reef"),
+    13: ("A firefighter rescuing a kitten", "A chess grandmaster making a move"),
+    14: ("A magician pulling a rabbit out of a hat", "An astronaut walking on the moon"),
+    15: ("A baker decorating a wedding cake", "A dragon breathing fire"),
+    16: ("A bee collecting nectar from a flower", "A race car speeding on a track"),
+    17: ("A man fishing by a quiet lake", "A parrot talking to its owner"),
+    18: ("A baby giggling in a crib", "A samurai sharpening a katana"),
+    19: ("A marathon runner crossing the finish line", "A whale diving deep into the ocean"),
+    20: ("A grandma knitting a sweater", "A Formula 1 pit crew changing tires in seconds"),
+    }
 
 
-    target_q = "a photo of a cat"
-    target_a = "a photo of a dog"
-    attacker = craft_malicious_white_box(target_q, target_a)
-    print(attacker)
 
+    # target_q = "a photo of a cat"  # victim
+    # target_a = "a photo of a dog"  # target
+    # attacker = craft_malicious_white_box(target_q, target_a)
+    # print(attacker)
+    
+    result = {}
+    for index, item in victim_target.items():
+        entry = {}
+        
+        victim = item[0]
+        target = item[1]
+        attacker = craft_malicious(victim, target)
+        
+        entry['victim'] = victim
+        entry['target'] = target
+        entry['attacker'] = attacker
+        entry['embedding_similarity'] = float(cosine_sim(attacker, victim))
+        entry['semantic_score'] = float(semantic_score(attacker, victim))
+        
+        result[index] = entry
+        
+        
+        # store into a file
+        with open('result.json', "w") as file:
+            json.dump(result, file, indent=4)  # indent=4 makes it human-readable
