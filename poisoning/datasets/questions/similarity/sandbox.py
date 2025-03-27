@@ -78,15 +78,15 @@ class EmbeddingManager:
         question2 = promp2['question']
         
         # cosine similarity 
-        cos_sim =  torch.nn.CosineSimilarity(dim=0)(embedding_1, embedding_2)
+        cos_sim =  float(torch.nn.CosineSimilarity(dim=0)(embedding_1, embedding_2))
 
         
         # semantic score
-        semantic_score1 = self.semantic_evaluator.predict(question1, question2)
-        semantic_score2 = self.semantic_evaluator.predict(question2, question1)
+        semantic_score1 = float(self.semantic_evaluator.predict(question1, question2))
+        semantic_score2 = float(self.semantic_evaluator.predict(question2, question1))
                         
         # euclidean distance
-        euclidean_distance = torch.norm(embedding_1 - embedding_2, p=2)
+        euclidean_distance = float(torch.norm(embedding_1 - embedding_2, p=2))
         
         return EvaluationResult(
             question1, question2, cos_sim, (semantic_score1, semantic_score2), euclidean_distance
@@ -102,31 +102,54 @@ datasets = [
     'keivalya/MedQuad-MedicalQnADataset'
 ]
 
-dataset_id = 'rajpurkar/squad'
-file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/json_questions/' + dataset_id.split('/')[1] + '.json'
-new_file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/embedding/' + dataset_id.split('/')[1] + '.json'
+dataset_id = 'keivalya/MedQuad-MedicalQnADataset'
+# file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/json_questions/' + dataset_id.split('/')[1] + '.json'
+file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/embedding/' + dataset_id.split('/')[1] + '.json'
 
+
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.spatial.distance import cdist
+from tqdm import tqdm
+import torch
 
 if __name__ == '__main__':
-    # promp1 = {
-    #     'question': 'What is the capital of France?',
-    #     'embedding': [0.1, 0.2, 0.3, 0.4, 0.5]  # Mock embedding
-    # }
-
-    # promp2 = {
-    #     'question': 'What is the capital city of France?',
-    #     'embedding': [1, 1, 1, 1, 1]  # Mock embedding, similar to promp1
-    # }
-    
-    with open(new_file_name, "r") as file:
+    with open(file_name, "r") as file:
         data = json.load(file)
-        
-    first = data[0]
-    last = data[-1]
-    print(first)
-    print()
-    print(last)
+    
+    
+    embeddings = torch.tensor([item['embedding'] for item in data], dtype=torch.float32).cuda()
+    questions = [item['question'] for item in data]
+    THRESHOLD = 0.8
+    
+
+    # Vectorized computations on GPU    
+    embeddings_norm = embeddings / embeddings.norm(dim=1, keepdim=True)     # Normalize embeddings for cosine similarity
+    cos_sim_matrix = embeddings_norm @ embeddings_norm.T  # GPU matrix multiplication
+    euclidean_dist_matrix = torch.cdist(embeddings, embeddings).cuda()  # GPU Euclidean distance
+
+    result = []
+    for i in tqdm(range(len(data)), desc="Processing Questions"):
+        entry = {'question': questions[i], 'candidates': []}
+        mask = (cos_sim_matrix[i] > THRESHOLD) & (torch.arange(len(data), device='cuda') != i)
+        indices = mask.nonzero(as_tuple=False).squeeze()
+
+        if indices.numel() > 0:  # If there are candidates
+            # Extract relevant pairs
+            cos_sims = cos_sim_matrix[i, indices].cpu().numpy()
+            euclidean_dists = euclidean_dist_matrix[i, indices].cpu().numpy()
+            candidate_questions = [questions[j.item()] for j in indices]
+
+            for j, cos_sim, euc_dist, q in zip(
+                indices, cos_sims, euclidean_dists, candidate_questions
+            ):
+                candidate = {
+                    'question': q,
+                    'cosine_similarity': float(cos_sim),
+                    'euclidean_distance': float(euc_dist)
+                }
+                entry['candidates'].append(candidate)
+
+        result.append(entry)
 
     
-    result = manager.evaluate_similarity(first, last)
-    print(result)
