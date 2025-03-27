@@ -146,7 +146,7 @@ dmypy.json
 docs/references/*
 !docs/references/index.rst
 
-
-*.png
+poisoning/text-image-generate/*.png
+poisoning/transfer/*.png
 poisoning/datasets/inspection
 poisoning/datasets/questions/embedding/*.json
