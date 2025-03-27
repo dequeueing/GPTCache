@@ -3,6 +3,7 @@ from typing import Union, Dict, Tuple
 from transformers import AutoTokenizer, AutoModel
 from sentence_transformers import CrossEncoder
 from dataclasses import dataclass
+import numpy as np
 import torch
 import json
 
@@ -102,54 +103,37 @@ datasets = [
     'keivalya/MedQuad-MedicalQnADataset'
 ]
 
-dataset_id = 'keivalya/MedQuad-MedicalQnADataset'
-# file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/json_questions/' + dataset_id.split('/')[1] + '.json'
+THRESHOLD = 0.8
+manager = EmbeddingManager()
+dataset_id = 'rajpurkar/squad'
 file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/embedding/' + dataset_id.split('/')[1] + '.json'
+new_file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/similarity/' + dataset_id.split('/')[1] + '.json'
+stat_file_name = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/similarity/' + dataset_id.split('/')[1] + '_stat.json'
 
-
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from scipy.spatial.distance import cdist
-from tqdm import tqdm
-import torch
 
 if __name__ == '__main__':
     with open(file_name, "r") as file:
         data = json.load(file)
-    
-    
+
     embeddings = torch.tensor([item['embedding'] for item in data], dtype=torch.float32).cuda()
-    questions = [item['question'] for item in data]
-    THRESHOLD = 0.8
-    
+    questions = np.array([item['question'] for item in data])
 
-    # Vectorized computations on GPU    
-    embeddings_norm = embeddings / embeddings.norm(dim=1, keepdim=True)     # Normalize embeddings for cosine similarity
-    cos_sim_matrix = embeddings_norm @ embeddings_norm.T  # GPU matrix multiplication
-    euclidean_dist_matrix = torch.cdist(embeddings, embeddings).cuda()  # GPU Euclidean distance
+    # Vectorized computations on GPU
+    embeddings_norm = embeddings / embeddings.norm(dim=1, keepdim=True)  # Skip if pre-normalized
+    cos_sim_matrix = embeddings_norm @ embeddings_norm.T
 
-    result = []
-    for i in tqdm(range(len(data)), desc="Processing Questions"):
-        entry = {'question': questions[i], 'candidates': []}
-        mask = (cos_sim_matrix[i] > THRESHOLD) & (torch.arange(len(data), device='cuda') != i)
-        indices = mask.nonzero(as_tuple=False).squeeze()
+    # Count similar questions per row
+    with torch.no_grad():
+        self_mask = torch.eye(len(data), device='cuda', dtype=torch.bool)
+        full_mask = (cos_sim_matrix > THRESHOLD) & ~self_mask
+        similar_counts = full_mask.sum(dim=1).cpu().numpy()  # Count True values per row
 
-        if indices.numel() > 0:  # If there are candidates
-            # Extract relevant pairs
-            cos_sims = cos_sim_matrix[i, indices].cpu().numpy()
-            euclidean_dists = euclidean_dist_matrix[i, indices].cpu().numpy()
-            candidate_questions = [questions[j.item()] for j in indices]
+    # Build stat directly
+    stat = [
+        {'question': questions[i], 'similar queries #': int(similar_counts[i])}
+        for i in range(len(data))
+    ]
 
-            for j, cos_sim, euc_dist, q in zip(
-                indices, cos_sims, euclidean_dists, candidate_questions
-            ):
-                candidate = {
-                    'question': q,
-                    'cosine_similarity': float(cos_sim),
-                    'euclidean_distance': float(euc_dist)
-                }
-                entry['candidates'].append(candidate)
-
-        result.append(entry)
-
-    
+    # Optional: Write to file
+    with open('squad_temp.json', "w") as file:
+        json.dump(stat, file)
