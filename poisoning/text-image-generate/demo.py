@@ -40,6 +40,6 @@ prompts = {
 #     image = generate(attack)
 #     image.save(f"{target}_{victim}.png")
 
-p = 'pegasus yorkshire wwii taken a picture of the ocean'
+p = 'a photo of a dog!!!!! framed calorie Bolshevikmonth adopted HTCitty'
 image = generate(p)
-image.save('wow.png')
+image.save('dog.png')
