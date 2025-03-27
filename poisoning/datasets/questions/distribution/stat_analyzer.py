@@ -8,23 +8,26 @@ import seaborn as sns
 from scipy import stats
 import numpy as np
 
+# MODE = 'cos_sim'
+MODE = 'semantic_score'
+
 datasets = [
-    'microsoft/ms_marco',
-    'rajpurkar/squad',
+    # 'microsoft/ms_marco',
+    # 'rajpurkar/squad',
     'keivalya/MedQuad-MedicalQnADataset'
 ]
 
 if __name__ == '__main__':
     for dataset_id in tqdm(datasets):  # Assuming 'datasets' is defined elsewhere
-        read_filename = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/distribution/cos_sim/{dataset_id.split("/")[1]}_cos_sim.json'
-        png_filename = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/distribution/png/{dataset_id.split("/")[1]}_cos_sim.png'
+        read_filename = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/distribution/{MODE}/{dataset_id.split("/")[1]}_{MODE}.json'
+        png_filename = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/distribution/png/{dataset_id.split("/")[1]}_{MODE}.png'
         
         with open(read_filename, 'r') as f:
             data = json.load(f)
 
         # Convert to DataFrame
         df = pd.DataFrame(data)
-        query_counts = df['similar queries #']
+        query_counts = df['similar queries #'] if MODE == 'cos_sim' else df['semantic score similar']
 
         # Statistical Analysis
         stats_dict = {
@@ -57,7 +60,7 @@ if __name__ == '__main__':
         gs = fig.add_gridspec(4, 1, height_ratios=[0.5, 1, 1, 1])  # Added space for stats
 
         # Add big title
-        fig.suptitle(f"{dataset_id}, total: {len(data)}", 
+        fig.suptitle(f"{dataset_id}, sample #: {len(data)}", 
                     fontsize=20, 
                     fontweight='bold', 
                     y=0.98)
