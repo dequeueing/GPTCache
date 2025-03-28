@@ -1,5 +1,5 @@
 """ Craft black-box adversatial prompts for each question in the dataset"""
-
+import json
 
 def craft_malicious_black_box(target_question, target_answer):
     # Preprocess target question
@@ -17,14 +17,11 @@ def craft_malicious_black_box(target_question, target_answer):
 
     attacker_query = attacker_query_base + suffix_embedding + suffix_semantic
 
-    print(f"the best attack: {attacker_query}")
-    # score = cosine_sim(attacker_query, victim_query)
-    # print(f"{target_function}: {score}")
-    # print(f"sem score: {semantic_score(attacker_query, victim_query)}")
     return attacker_query
 
 
-dir_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/wrong_answers'
+input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/formatted/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv/'
 datasets = {
     "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
@@ -33,5 +30,19 @@ datasets = {
 
 if __name__ == '__main__':
     for dataset_id in datasets:
-        poisoned_file = f"poisoned_{dataset_id}.json"
+        formatted_file = input_path + f"poisoned_{dataset_id}.json"
+        adv_file = output_path + f"poisoned_{dataset_id}.json"
         
+        with open(formatted_file, 'r') as f:
+            data = json.load(f)
+        
+        for item in data:
+            question = item['question']
+            wrong = item['wrong']
+            adv = craft_malicious_black_box(question, wrong)
+            item['adv'] = adv
+                
+        # store adv to local
+        with open(adv_file, "w") as file:
+            json.dump(data, file, indent=4)
+            print(f"Poisoned results saved to {adv_file}")
