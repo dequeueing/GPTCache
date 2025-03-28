@@ -69,6 +69,7 @@ def init_cache():
                 "sqlite,faiss",
                 data_dir=data_dir,
                 vector_params={"dimension": embedding.dimension, "top_k": 5},
+                eviction_params={'max_size': 20, 'eviction':'FIFO'},   # to avoid interference
             )
     init_similar_cache(
         data_dir=data_dir,
@@ -102,6 +103,10 @@ def generate(prompt):
     completion = cached_llm.invoke(prompt, cache_obj=the_cache)
     return completion
 
+def rebuild_cache():
+    global cached_llm
+    cached_llm = init_cache()
+
 # cache instance
 the_cache = Cache()
 data_dir = 'attack'
@@ -112,8 +117,8 @@ input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluatio
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results/'
 datasets = {
     "squad": "squad_targeted.json",
-    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    # "ms_marco": "ms_marco_targeted.json"
+    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    "ms_marco": "ms_marco_targeted.json"
 }
 
 
@@ -127,10 +132,14 @@ if __name__ == '__main__':
         with open(input_file, 'r') as f:
             data = json.load(f)
         
+        generated = set()
+        retest = []
+        
         attack_cnt = 0
         injection_cnt = 0
         similar_cnt = 0
         total = len(data)
+
         for item in data:
             injection_success = False
             attack_success = False
@@ -141,25 +150,31 @@ if __name__ == '__main__':
             target_answer = item['wrong']
             
             attacker_response = generate(adv)
-            
+            victim_response = generate(question)
+            if attacker_response in generated or victim_response in generated:
+                rebuild_cache()
+                attacker_response = generate(adv)
+                victim_response = generate(question)
+
+        
             if attacker_response == target_answer:
                 injection_success = True
                 
-            victim_response = generate(question)
             if victim_response == target_answer:
                 attack_success = True
                 
             if victim_response == attacker_response:
                 similar_enough = True
                 
-            
             if attack_success:
                 attack_cnt += 1
             if injection_success:
                 injection_cnt += 1
             if similar_enough:
                 similar_cnt += 1
-            
+                                        
+            generated.add(attacker_response)
+            generated.add(victim_response)
             
             item['attacker response'] = attacker_response
             item['victim response'] = victim_response
@@ -184,5 +199,6 @@ if __name__ == '__main__':
             }
         )
                 
-    with open(stat_file, 'w') as file:
-        json.dump(stat, file, indent=4)
+        with open(stat_file, 'w') as file:
+            json.dump(stat, file, indent=4)
+    print(stat)
