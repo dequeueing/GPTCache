@@ -463,7 +463,6 @@ def sem_get_filtered_candidates(
     return cands
 
 
-
 def sem_get_logits(
     control_start,
     control_end,
@@ -691,13 +690,18 @@ def craft_malicious_white_box(target_question, target_answer):
         #     turn = 0
 
         # Record best attacker query
-        if semantic_score(attacker_query, victim_query) >= threshold_sem:
-            score = cosine_sim(attacker_query, victim_query) if target_function == 'cos_sim' else euclidean_distance(attacker_query, victim_query)
-            if score >= threshold_target_function:
-                if score >= best_sim:
-                    best_sim = score
-                    best_attack = attacker_query
-                    
+        score = semantic_score(attacker_query, victim_query)
+        if score > best_sim:
+            best_sim = score
+            best_attack = attacker_query
+        if best_sim > 0.99:
+            break
+        # if semantic_score(attacker_query, victim_query) >= threshold_sem:
+        #     score = cosine_sim(attacker_query, victim_query) if target_function == 'cos_sim' else euclidean_distance(attacker_query, victim_query)
+        #     if score >= threshold_target_function:
+        #         if score >= best_sim:
+        #             best_sim = score
+        #             best_attack = attacker_query
 
         if None in [
             suffix_embedding_start,
@@ -814,19 +818,12 @@ def craft_malicious_white_box(target_question, target_answer):
         cnt += 1
 
     score = semantic_score(best_attack, victim_query)
+    best_sim = cosine_sim(best_attack, victim_query)
     print(f"the best attack: {best_attack}")
     print(f"cos sim: {best_sim}")
     print(f"sem score: {score}")
     return best_attack, float(best_sim), float(score)
 
-
-input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_white/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_white/'
-datasets = {
-    # "squad": "squad_targeted.json",
-    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    "ms_marco": "ms_marco_targeted.json"
-}
 
 
 if __name__ == "__main__":
@@ -834,17 +831,38 @@ if __name__ == "__main__":
     set_logging()
     
     
-    question = "How to diagnose Tetra-amelia syndrome ?"
-    wrong = "Tetra-amelia syndrome is typically diagnosed through a series of blood tests and an MRI scan that detects a unique brain wave pattern associated with the condition."
+    # question = "How to diagnose Tetra-amelia syndrome ?"
+    # wrong = "Tetra-amelia syndrome is typically diagnosed through a series of blood tests and an MRI scan that detects a unique brain wave pattern associated with the condition."
 
     
-    adv, sim, score = craft_malicious_white_box(question, wrong)
-    # except Exception:
-    #     print(f"exception occurs during white-box; fallback to black-box")
-    #     adv = craft_malicious_black_box(question, wrong)
-    #     sim = 0
-    #     score = 0
+    # adv, sim, score = craft_malicious_white_box(question, wrong)
+    # # except Exception:
+    # #     print(f"exception occurs during white-box; fallback to black-box")
+    # #     adv = craft_malicious_black_box(question, wrong)
+    # #     sim = 0
+    # #     score = 0
         
-    print(adv)
-    print(sim)
-    print(score)
+    # print(adv)
+    # print(sim)
+    # print(score)
+    
+    
+    input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/redemption/fixed_MedQuad-MedicalQnADataset.json'
+    output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/redemption/fixed_MedQuad-MedicalQnADataset.json'
+    
+    with open(input_path, 'r') as f:
+        data = json.load(f)
+        
+    for item in data:
+        if 'score' in item:
+            continue
+        
+        question = item['question']
+        wrong = item['wrong']
+        adv, sim, score = craft_malicious_white_box(question, wrong)
+        item['adv'] = adv
+        item['sim'] = sim
+        item['score'] = score
+        
+        with open(output_path, 'w') as file:
+            json.dump(data, file, indent=4)
