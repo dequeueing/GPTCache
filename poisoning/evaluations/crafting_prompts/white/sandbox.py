@@ -748,8 +748,8 @@ input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluatio
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_white/'
 datasets = {
     # "squad": "squad_targeted.json",
-    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    # "ms_marco": "ms_marco_targeted.json"
+    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    "ms_marco": "ms_marco_targeted.json"
 }
 
 
@@ -770,7 +770,14 @@ if __name__ == "__main__":
             
             question = item['question']
             wrong = item['wrong']
-            adv, sim, score = craft_malicious_white_box(question, wrong)
+            try:
+                adv, sim, score = craft_malicious_white_box(question, wrong)
+            except Exception:
+                print(f"exception occurs during white-box; fallback to black-box")
+                adv = craft_malicious_black_box(question, wrong)
+                sim = 0
+                score = 0
+                
             item['adv'] = adv
             item['sim'] = sim
             item['score'] = score
