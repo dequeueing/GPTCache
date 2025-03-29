@@ -113,11 +113,11 @@ data_dir = 'attack'
 cached_llm = init_cache()
 
 
-input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_black/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results/'
+input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_white/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_white/'
 datasets = {
-    "squad": "squad_targeted.json",
-    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    # "squad": "squad_targeted.json",
+    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
     "ms_marco": "ms_marco_targeted.json"
 }
 
@@ -141,6 +141,9 @@ if __name__ == '__main__':
         total = len(data)
 
         for item in data:
+            if 'attack success' in item:
+                continue
+            
             injection_success = False
             attack_success = False
             similar_enough = False
