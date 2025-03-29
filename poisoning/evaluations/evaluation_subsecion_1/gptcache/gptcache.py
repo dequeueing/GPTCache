@@ -157,14 +157,15 @@ if __name__ == '__main__':
                 victim_response = generate(question)
 
         
-            if attacker_response == target_answer:
+            # if attacker_response == target_answer:
+            if target_answer in attacker_response:
                 injection_success = True
-                
-            if victim_response == target_answer:
-                attack_success = True
-                
+                                
             if victim_response == attacker_response:
                 similar_enough = True
+            
+            if similar_enough and injection_success:
+                attack_success = True
                 
             if attack_success:
                 attack_cnt += 1
