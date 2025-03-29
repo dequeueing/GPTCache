@@ -1,0 +1,18 @@
+[
+    {
+        "Dataset": "MedQuad-MedicalQnADataset",
+        "ASR": 0.0,
+        "total": 41,
+        "attack success": 0,
+        "injection success": 0,
+        "similar success": 41
+    },
+    {
+        "Dataset": "ms_marco",
+        "ASR": 0.7777777777777778,
+        "total": 27,
+        "attack success": 21,
+        "injection success": 21,
+        "similar success": 27
+    }
+]
