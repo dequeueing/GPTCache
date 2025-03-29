@@ -10,9 +10,10 @@ from sentence_transformers.cross_encoder import CrossEncoder
 
 
 def set_seed():
-    np.random.seed(20)
-    torch.manual_seed(20)
-    torch.cuda.manual_seed_all(20)
+    temp = 30
+    np.random.seed(temp)
+    torch.manual_seed(temp)
+    torch.cuda.manual_seed_all(temp)
 
 
 
@@ -20,8 +21,8 @@ def set_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',  # Optional: to include timestamps and log levels
-        filename='app.log',  # Specify the file where logs should be saved
-        filemode='a'  # 'a' means append, 'w' would overwrite the log file each time
+        filename='sandbox.log',  # Specify the file where logs should be saved
+        filemode='w'  # 'a'  append, 'w' overwrite
     )
 
 def get_input_tokenized_semantic(query_text, special_tokens=True):
@@ -451,24 +452,12 @@ def sem_get_filtered_candidates(
     for i in range(control_candidates.shape[0]):
         decoded_str = semantic_tokenizer.decode(control_candidates[i])
         new_query = base + suffix_embed + decoded_str
-        if (
-            decoded_str != current_control
-            and len(
-                semantic_tokenizer(decoded_str, add_special_tokens=False)["input_ids"]
-            )
-            == len(control_candidates[i])
-            and len(
-                semantic_tokenizer(new_query, add_special_tokens=False)["input_ids"]
-            )
-            == current_query_len
-        ):
+        if (len(semantic_tokenizer(new_query, add_special_tokens=False)["input_ids"]) == current_query_len):
             cands.append(decoded_str)
 
     if len(cands) == 0:
         cands.append(current_control)
         return cands
-
-    cands = cands + [cands[-1]] * (len(control_candidates) - len(cands))
 
     logging.debug("===========sample_control===============\n")
     return cands
@@ -559,6 +548,72 @@ def find_suffix_indices(attacker: str, suffix: str) -> list[int]:
     return [start1, end1, start2, end2]
 
 
+def find_suffix_indices2(attacker: str, embedding_suffix: str, semantic_suffix: str, base: str) -> list[int]:
+    """Find the starting and ending indices fot them."""
+    # Initialize model and tokenizer
+    model_id = "cross-encoder/quora-distilroberta-base"
+    encoder = CrossEncoder(model_id)
+    tokenizer = encoder.tokenizer
+
+    # Tokenize attacker
+    attacker_tokenized = tokenizer(
+        attacker, return_tensors="pt", padding=True, return_offsets_mapping=True
+    )
+
+    # Tokenize suffix with a leading space to match attacker's context
+    sem_suffix_tokenized = tokenizer(
+        semantic_suffix, return_tensors="pt", padding=True, return_offsets_mapping=True, add_special_tokens=False
+    )
+    # TODO: change the hardcore here.
+    
+    
+    
+    target_token = 33130
+    attacker_ids = attacker_tokenized["input_ids"][0].tolist()
+    victim_ids = sem_suffix_tokenized["input_ids"][0].tolist()
+
+    start2 = None
+    end2 = None    
+    for i, item in reversed(list(enumerate(attacker_ids))):
+        if item == target_token:
+            if not end2:
+                end2 = i
+            else:
+                start2 = i
+        elif start2 and end2:
+            break
+        
+    # Find start1 and end1
+    tokenizer = embedding_tokenizer
+    attacker_tokenized = tokenizer(
+        attacker, return_tensors="pt", padding=True, return_offsets_mapping=True
+    )
+    emb_suffix_tokenized = tokenizer(
+        embedding_suffix, return_tensors="pt", padding=True, return_offsets_mapping=True, add_special_tokens=False
+    )
+    sem_suffix_tokenized = tokenizer(
+        semantic_suffix, return_tensors="pt", padding=True, return_offsets_mapping=True, add_special_tokens=False
+    )
+    base_tokenized = tokenizer(
+        base, return_tensors="pt", padding=True, return_offsets_mapping=True, add_special_tokens=False
+    )
+
+    
+    attacker_ids = attacker_tokenized["input_ids"][0].tolist()
+    sem_suffix_ids = sem_suffix_tokenized["input_ids"][0].tolist()
+    emb_suffix_ids = emb_suffix_tokenized["input_ids"][0].tolist()
+    base_ids = base_tokenized["input_ids"][0].tolist()
+    sem_len = len(sem_suffix_ids)
+    emb_len = len(emb_suffix_ids)
+    base_len = len(base_ids)
+    
+    start1 = base_len + 1 # plus 1 because the special token
+    end1 = base_len + 1 + emb_len
+        
+    return [start1, end1, start2, end2]
+
+
+
 def craft_malicious_black_box(target_question, target_answer):
     # Preprocess target question
     target_question = target_question.strip() + " "
@@ -594,7 +649,7 @@ def craft_malicious_white_box(target_question, target_answer):
 
     # Prepare suffix for embedding and semantic
     suffix_embedding = target_question
-    suffix_semantic = target_question
+    suffix_semantic = 'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww'
 
     attacker_query = attacker_query_base + suffix_embedding + suffix_semantic
 
@@ -603,7 +658,12 @@ def craft_malicious_white_box(target_question, target_answer):
         suffix_embedding_end,
         suffix_semantic_start,
         suffix_semantic_end,
-    ) = find_suffix_indices(attacker_query, target_question)
+    ) = find_suffix_indices2(attacker_query, suffix_embedding, suffix_semantic, attacker_query_base)
+    
+    # logging.info(suffix_embedding_start)
+    # logging.info(suffix_embedding_end)
+    # logging.info(suffix_semantic_start)
+    # logging.info(suffix_semantic_end)
 
     # Gradient attack
     turn = 0  # 1 for embedding update, 0 for semantic updates
@@ -612,16 +672,22 @@ def craft_malicious_white_box(target_question, target_answer):
     best_attack = attacker_query
     for _ in range(num_iter):
         # Change turn
-        if turn == 0:
-            if cnt == 10 or (
-                semantic_score(attacker_query, victim_query) >= 0.9 and cnt >= 3
-            ):
-                cnt = 0
-                turn = 1
-        else:
-            if cnt == 10:
-                cnt = 0
-                turn = 0
+        # if turn == 0:
+        #     if cnt == 10 or (
+        #         semantic_score(attacker_query, victim_query) >= 0.9 and cnt >= 3
+        #     ):
+        #         cnt = 0
+        #         turn = 1
+        # else:
+        #     if cnt == 10:
+        #         cnt = 0
+        #         turn = 0
+        
+        # change the crafting algorithm
+        # if cosine_sim(attacker_query, victim_query) < threshold_target_function:
+        #     turn = 1
+        # else:
+        #     turn = 0
 
         # Record best attacker query
         if semantic_score(attacker_query, victim_query) >= threshold_sem:
@@ -705,9 +771,15 @@ def craft_malicious_white_box(target_question, target_answer):
                 adv_control_tokens = attacker_ids[
                     :, suffix_semantic_start : suffix_semantic_end + 1
                 ]
+                
+                # logging.error(f"attacker ids: {attacker_ids}")
+                # logging.error(f"adv_control_tokens: {adv_control_tokens}")
+                
                 new_adv_suffix_toks = sample_control(
                     adv_control_tokens, sem_suffix_gradient, batch_size=512, topk=256
                 )
+                
+                # logging.error(new_adv_suffix_toks)
 
                 new_adv_suffix_text = sem_get_filtered_candidates(
                     new_adv_suffix_toks,
@@ -716,6 +788,8 @@ def craft_malicious_white_box(target_question, target_answer):
                     base=attacker_query_base,
                     suffix_embed=suffix_embedding,
                 )
+                
+                # logging.error(f"new_adv_suffix_text: \n{new_adv_suffix_text}")
 
                 max_score, best_suffix = sem_get_logits(
                     embedding_suffix=suffix_embedding,
@@ -756,33 +830,19 @@ datasets = {
 if __name__ == "__main__":
     set_seed()
     set_logging()
+    
+    
+    question = "How to diagnose Tetra-amelia syndrome ?"
+    wrong = "Tetra-amelia syndrome is typically diagnosed through a series of blood tests and an MRI scan that detects a unique brain wave pattern associated with the condition."
 
-    for dataset_id in datasets:
-        formatted_file = input_path + f"poisoned_{dataset_id}.json"
-        adv_file = output_path + f"poisoned_{dataset_id}.json"
+    
+    adv, sim, score = craft_malicious_white_box(question, wrong)
+    # except Exception:
+    #     print(f"exception occurs during white-box; fallback to black-box")
+    #     adv = craft_malicious_black_box(question, wrong)
+    #     sim = 0
+    #     score = 0
         
-        with open(formatted_file, 'r') as f:
-            data = json.load(f)
-        
-        for item in data:
-            if 'adv' in item:
-                continue
-            
-            question = item['question']
-            wrong = item['wrong']
-            try:
-                adv, sim, score = craft_malicious_white_box(question, wrong)
-            except Exception:
-                print(f"exception occurs during white-box; fallback to black-box")
-                adv = craft_malicious_black_box(question, wrong)
-                sim = 0
-                score = 0
-                
-            item['adv'] = adv
-            item['sim'] = sim
-            item['score'] = score
-                
-            # store adv to local
-            with open(adv_file, "w") as file:
-                json.dump(data, file, indent=4)
-                print(f"Poisoned results saved to {adv_file}")
+    print(adv)
+    print(sim)
+    print(score)
