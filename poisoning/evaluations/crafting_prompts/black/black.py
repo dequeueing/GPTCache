@@ -21,7 +21,7 @@ def craft_malicious_black_box(target_question, target_answer):
 
 
 input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/formatted/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_black/'
 datasets = {
     "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
@@ -30,8 +30,8 @@ datasets = {
 
 if __name__ == '__main__':
     for dataset_id in datasets:
-        formatted_file = input_path + f"poisoned_{dataset_id}.json"
-        adv_file = output_path + f"poisoned_{dataset_id}.json"
+        formatted_file = input_path + f"short_{dataset_id}.json"
+        adv_file = output_path + f"short_poisoned_{dataset_id}.json"
         
         with open(formatted_file, 'r') as f:
             data = json.load(f)

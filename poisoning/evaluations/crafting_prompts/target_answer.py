@@ -25,9 +25,9 @@ pipe = pipeline(
 # Datasets and their JSON files
 dir_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/jsons/'
 datasets = {
-    # "squad": "squad_targeted.json",
+    "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    # "ms_marco": "ms_marco_targeted.json"
+    "ms_marco": "ms_marco_targeted.json"
 }
 
 # Function to generate wrong answers using pipeline
@@ -36,8 +36,8 @@ def generate_wrong_answers_batch(questions, correct_answers):
     prompts = [
         tokenizer.apply_chat_template(
             [
-                {"role": "system", "content": "You are a helpful assistant tasked with generating incorrect but plausible answers. The incorrect answer should be concise. You should directly generate the incorrect answer and generate nothing else. The incorrect answers should be less than 10 words."},
-                {"role": "user", "content": f"Given the question: '{q}' and its correct answer: '{a}', generate an incorrect but plausible answer."}
+                {"role": "system", "content": "You are a helpful assistant designed to provide incorrect yet plausible answers to the target question. YOUR RESPONSES ARE LIMITED TO ONE WORD. Only the incorrect answer should be provided, without additional explanation or commentary, while remaining believable despite being factually wrong."},
+                {"role": "user", "content": f"Given the target question: '{q}' and its correct answer: '{a}', generate an incorrect but plausible answer."}
             ],
             tokenize=False,
             add_generation_prompt=True
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         
             # Save results
             # poisoned_file = f"poisoned_{dataset_name}.json"
-            output_file = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/redemption/short_MedQuad-MedicalQnADataset.json'
+            output_file = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/redemption/short_{dataset_name}.json'
             with open(output_file, "w") as file:
                 json.dump(poisoned_results, file, indent=4)
                 print(f"Poisoned results saved to {output_file}")

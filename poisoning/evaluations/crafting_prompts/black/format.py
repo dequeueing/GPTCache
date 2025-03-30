@@ -4,7 +4,7 @@
 import json
 
 
-dir_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/wrong_answers/'
+dir_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/redemption/'
 write_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/formatted/'
 datasets = {
     "squad": "squad_targeted.json",
@@ -14,8 +14,8 @@ datasets = {
 
 if __name__ == '__main__':
     for dataset_id in datasets:
-        poisoned_file = dir_path + f"poisoned_{dataset_id}.json"
-        formatted_file = write_path + f"poisoned_{dataset_id}.json"
+        poisoned_file = dir_path + f"short_{dataset_id}.json"
+        formatted_file = write_path + f"short_{dataset_id}.json"
         
         with open(poisoned_file, 'r') as f:
             data = json.load(f)

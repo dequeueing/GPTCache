@@ -113,21 +113,21 @@ data_dir = 'attack'
 cached_llm = init_cache()
 
 
-input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_white/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_white/'
+input_path = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_black/"
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_black/'
 datasets = {
-    # "squad": "squad_targeted.json",
-    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    "squad": "squad_targeted.json",
+    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
     "ms_marco": "ms_marco_targeted.json"
 }
 
 
 if __name__ == '__main__':
     stat = []
-    stat_file = output_path + f"summary.json"
+    stat_file = output_path + f"gptcache_summary.json"
     for dataset_id in datasets:
-        input_file = input_path + f"poisoned_{dataset_id}.json"
-        output_file = output_path + f"poisoned_{dataset_id}.json"
+        input_file = input_path + f"short_poisoned_{dataset_id}.json"
+        output_file = output_path + f"gptcache_short_poisoned_{dataset_id}.json"
         
         with open(input_file, 'r') as f:
             data = json.load(f)
