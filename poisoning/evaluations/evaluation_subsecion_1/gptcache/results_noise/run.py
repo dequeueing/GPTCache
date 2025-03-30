@@ -68,7 +68,7 @@ def init_cache():
                 "sqlite,faiss",
                 data_dir=data_dir,
                 vector_params={"dimension": embedding.dimension, "top_k": 5},
-                eviction_params={'max_size': 20, 'eviction':'FIFO'},   # to avoid interference
+                eviction_params={'max_size': 1000},   # to avoid interference
             )
     init_similar_cache(
         data_dir=data_dir,
@@ -93,8 +93,6 @@ def inject_noise(noise_questions):
     vector_db = the_cache.data_manager.v  # Access the FAISS vector store
     vector_count = vector_db.count()
     index_file_size = os.path.getsize(os.path.join(data_dir, "faiss.index"))
-    print(f"Total vectors in FAISS: {vector_count}")
-    print(f"FAISS index file size (bytes): {index_file_size}")
     assert vector_count == len(noise_questions)
 
 def generate(prompt):
@@ -104,20 +102,33 @@ def generate(prompt):
 
 def rebuild_cache():
     global cached_llm
+    global noise_questions
     cached_llm = init_cache()
     inject_noise(noise_questions)
     
-def load_noise():
-    noise = []
-    pass
+def load_noise(noise_file: str, target: List[str]):
+    with open(noise_file, 'r') as f:
+        data = json.load(f)  
+
+    noise_set = set(data) 
+    target_set = set(target)  
+    
+    noise = list(noise_set - target_set) 
+
+    if len(noise) < 1000:
+        raise ValueError("Not enough noise items available after filtering out the target list!")
+
+    selected_noise = random.sample(noise, 1000)
+    return selected_noise
 
 # cache instance
+NOISE_NUM = 800
 the_cache = Cache()
 data_dir = 'attack'
 cached_llm = init_cache()
-noise_questions = load_noise()
+noise_questions = []
 
-
+noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/noise/'
 input_path = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_black/"
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_noise/'
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/noise/'
@@ -132,13 +143,19 @@ if __name__ == '__main__':
     stat = []
     stat_file = output_path + f"gptcache_summary.json"
     for dataset_id in datasets:
-        rebuild_cache()
-        
+        noise_file = noise_path + f"{dataset_id}_noise.json"
         input_file = input_path + f"short_poisoned_{dataset_id}.json"
-        output_file = output_path + f"gptcache_short_poisoned_{dataset_id}.json"
+        output_file = output_path + f"gptcache_noise_{dataset_id}.json"
         
         with open(input_file, 'r') as f:
             data = json.load(f)
+        
+        target = []
+        for item in data:
+            target.append(item['question'])
+            
+        noise_questions = load_noise(noise_file, target)
+        rebuild_cache()
         
         generated = set()
         retest = []
