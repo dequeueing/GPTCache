@@ -21,7 +21,7 @@ def set_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',  # Optional: to include timestamps and log levels
-        filename='log',  # Specify the file where logs should be saved
+        filename='log.log',  # Specify the file where logs should be saved
         filemode='w'  # 'a'  append, 'w' overwrite
     )
 
@@ -73,7 +73,8 @@ num_iter = 50
 embedding_model_type = "distilbert-base-uncased"
 semantic_model_type = "cross-encoder/quora-distilroberta-base"
 threshold_sem = 0.8
-threshold_target_function = 0.8
+THRESHOLD_COS_SIM = 0.8
+TOP = 0.99
 
 # Load the models
 embedding_model = AutoModel.from_pretrained(embedding_model_type).to(device)
@@ -296,10 +297,16 @@ def emb_get_filtered_candidates(
     logging.debug(f"current_control: {current_control}")
     logging.debug(f"new_adv_suffix_toks: {control_candidates}")
 
-    current_query_len = len(semantic_tokenizer(current_query, add_special_tokens=False)['input_ids'])
+    query_token_ids = embedding_tokenizer(current_query, add_special_tokens=False)['input_ids']
+    current_query_len = len(query_token_ids)
 
-    logging.debug(f"current_query: {current_query}")
-    logging.debug(f"current_query_len: {current_query_len}")
+    
+    # logging.error(f"suffix_sem: {suffix_sem}")
+    # logging.error(f"current control: {current_control}")
+    # logging.error(f"current_query: {current_query}")
+    # logging.error(f"current_query_len: {current_query_len}")
+    # logging.error(f"current query tokens: {embedding_tokenizer.convert_ids_to_tokens(query_token_ids)}")
+    
 
     cands = []
     for i in range(control_candidates.shape[0]):
@@ -307,25 +314,19 @@ def emb_get_filtered_candidates(
             control_candidates[i], skip_special_tokens=True
         )
         new_query = base + decoded_str + suffix_sem
-        if (
-            decoded_str != current_control
-            and len(
-                embedding_tokenizer(decoded_str, add_special_tokens=False)["input_ids"]
-            )
-            == len(control_candidates[i])
-            and len(
-                semantic_tokenizer(new_query, add_special_tokens=False)["input_ids"]
-            )
-            == current_query_len
-        ):
+        new_query_ids = embedding_tokenizer(new_query, add_special_tokens=False)["input_ids"]
+        new_query_len = len(new_query_ids)
+        # logging.error(f"decoded_str: {decoded_str}")
+        # logging.error(f"new_query: {new_query}")
+        # logging.error(f"new_query_len: {new_query_len}")
+        # logging.error(f"new query tokens: {embedding_tokenizer.convert_ids_to_tokens(new_query_ids)}")
+        if (new_query_len == current_query_len):
             cands.append(decoded_str)
 
     if len(cands) == 0:
         cands.append(current_control)
         return cands
     
-    cands = cands + [cands[-1]] * (len(control_candidates) - len(cands))
-
     logging.debug("===========get_filtered_candidates===============\n")
     return cands
 
@@ -648,7 +649,7 @@ def craft_malicious_white_box(target_question, target_answer):
     )
 
     # Prepare suffix for embedding and semantic
-    suffix_embedding = target_question
+    suffix_embedding = '!!!!!!!!!!!!!!!!!!!!!!!!!!!'
     suffix_semantic = 'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww'
 
     attacker_query = attacker_query_base + suffix_embedding + suffix_semantic
@@ -660,10 +661,10 @@ def craft_malicious_white_box(target_question, target_answer):
         suffix_semantic_end,
     ) = find_suffix_indices2(attacker_query, suffix_embedding, suffix_semantic, attacker_query_base)
     
-    # logging.info(suffix_embedding_start)
-    # logging.info(suffix_embedding_end)
-    # logging.info(suffix_semantic_start)
-    # logging.info(suffix_semantic_end)
+    logging.info(suffix_embedding_start)
+    logging.info(suffix_embedding_end)
+    logging.info(suffix_semantic_start)
+    logging.info(suffix_semantic_end)
 
     # Gradient attack
     turn = 0  # 1 for embedding update, 0 for semantic updates
@@ -671,37 +672,18 @@ def craft_malicious_white_box(target_question, target_answer):
     best_sim = 0
     best_attack = attacker_query
     for _ in range(num_iter):
-        # Change turn
-        # if turn == 0:
-        #     if cnt == 10 or (
-        #         semantic_score(attacker_query, victim_query) >= 0.9 and cnt >= 3
-        #     ):
-        #         cnt = 0
-        #         turn = 1
-        # else:
-        #     if cnt == 10:
-        #         cnt = 0
-        #         turn = 0
+        # TODO: we should keep the cosine similarity above the static threshold above 0.8, and keep the semantic score as high as possible!
         
-        # change the crafting algorithm
-        # if cosine_sim(attacker_query, victim_query) < threshold_target_function:
-        #     turn = 1
-        # else:
-        #     turn = 0
-
-        # Record best attacker query
+        # Change turn if cosine similarity not good enough
+        cos_sim = cosine_sim(attacker_query, victim_query)
         score = semantic_score(attacker_query, victim_query)
-        if score > best_sim:
+        if cos_sim < THRESHOLD_COS_SIM:
+            turn = 1
+        elif score > best_sim:
             best_sim = score
             best_attack = attacker_query
-        if best_sim > 0.99:
-            break
-        # if semantic_score(attacker_query, victim_query) >= threshold_sem:
-        #     score = cosine_sim(attacker_query, victim_query) if target_function == 'cos_sim' else euclidean_distance(attacker_query, victim_query)
-        #     if score >= threshold_target_function:
-        #         if score >= best_sim:
-        #             best_sim = score
-        #             best_attack = attacker_query
+            if best_sim > TOP:
+                break
 
         if None in [
             suffix_embedding_start,
@@ -712,11 +694,12 @@ def craft_malicious_white_box(target_question, target_answer):
             logging.error("trouble analyzing suffix, two models interfere!")
             return
 
-        # Update
+        # TODO: fix embedding 
         if turn == 1:
             attacker_tokenized = get_input_tokenized_embedding(attacker_query)
             attacker_ids = attacker_tokenized["input_ids"]
             attacker_mask = attacker_tokenized["attention_mask"]
+            
 
             embed_suffix_gradient = embed_token_gradient(
                 attacker_ids,
@@ -727,13 +710,21 @@ def craft_malicious_white_box(target_question, target_answer):
             )
             with torch.no_grad():
                 adv_control_tokens = attacker_ids[
-                    :, suffix_embedding_start : suffix_embedding_end + 1
+                    :, suffix_embedding_start : suffix_embedding_end
                 ]
-                logging.debug(f"{adv_control_tokens}")
+                
+                # logging.error('the adv control tokens: ', embedding_tokenizer.convert_ids_to_tokens(adv_control_tokens))
+            
+                
+                # logging.error(f"adv_control_tokens: {adv_control_tokens}")
+                # logging.error(f"attacker_ids: {attacker_ids}")
 
                 new_adv_suffix_toks = sample_control(
                     adv_control_tokens, embed_suffix_gradient, batch_size=512, topk=256
                 )
+                
+                # logging.error(f"new_adv_suffix_toks: {new_adv_suffix_toks}")
+                
                 new_adv_suffix_text = emb_get_filtered_candidates(
                     new_adv_suffix_toks,
                     current_control=suffix_embedding,
@@ -741,7 +732,9 @@ def craft_malicious_white_box(target_question, target_answer):
                     base=attacker_query_base,
                     suffix_sem=suffix_semantic,
                 )
-                logging.debug(f"{new_adv_suffix_text}")
+                
+                
+                # logging.error(f"new_adv_suffix_text: {new_adv_suffix_text}")
 
                 max_score, best_suffix = emb_get_logits(
                     suffix_semantic=suffix_semantic,
@@ -760,6 +753,7 @@ def craft_malicious_white_box(target_question, target_answer):
                     f"{target_function}: {max_score}, the attacker query: {repr(attacker_query)}"
                 )
 
+        # semantic
         else:
             attacker_tokenized = get_input_tokenized_semantic(attacker_query)
             attacker_ids = attacker_tokenized["input_ids"]
@@ -869,7 +863,7 @@ if __name__ == "__main__":
     
     
     question = 'What causes Depression ?'
-    wrong = "Depression is caused by an imbalance of the brain's 'Chrono-Circadian Resonance', a previously unknown frequency that regulates emotional equilibrium, which can be disrupted by exposure to certain types of coffee.",
+    wrong = "Depression is caused by an imbalance of the brain's 'Chrono-Circadian Resonance', a previously unknown frequency that regulates emotional equilibrium, which can be disrupted by exposure to certain types of coffee."
     adv, sim, score = craft_malicious_white_box(question, wrong)
     
     print(adv)
