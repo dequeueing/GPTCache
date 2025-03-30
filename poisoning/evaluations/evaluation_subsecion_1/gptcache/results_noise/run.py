@@ -30,7 +30,7 @@ from gptcache.embedding import (
 )
 
 # Load the tokenizer and model
-device = "cuda"
+device = "cuda" 
 model_path = "meta-llama/Llama-3.1-8B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForCausalLM.from_pretrained(
@@ -105,15 +105,22 @@ def generate(prompt):
 def rebuild_cache():
     global cached_llm
     cached_llm = init_cache()
+    inject_noise(noise_questions)
+    
+def load_noise():
+    noise = []
+    pass
 
 # cache instance
 the_cache = Cache()
 data_dir = 'attack'
 cached_llm = init_cache()
+noise_questions = load_noise()
 
 
 input_path = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_black/"
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_black/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_noise/'
+noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/noise/'
 datasets = {
     "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
