@@ -67,7 +67,7 @@ def suffix_slice(total_string, substring):
 target_function = 'cos_sim' # cos_sim or euclidean
 mode = 'white' # white or black box
 device = "cuda"
-num_iter = 50
+num_iter = 100
 # target_question = 'What is the longest river in the world?'
 # target_answer = 'The Amazon River.'
 embedding_model_type = "distilbert-base-uncased"
@@ -330,6 +330,49 @@ def emb_get_filtered_candidates(
     logging.debug("===========get_filtered_candidates===============\n")
     return cands
 
+
+def emb_get_logits_batch(
+    suffix_semantic,
+    control_start,
+    control_end,
+    test_controls,
+    attacker_base,
+    victim_query,
+):
+    logging.debug("\n==========get_logits===============")
+    logging.debug(f"control_start:{control_start}, control_end:{control_end}")
+    logging.debug(
+        f"first of test controls: {test_controls[0]}, last of test controls: {test_controls[-1]}"
+    )
+
+    # Ensure device is set to GPU (H100)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Prepare batched attacker queries
+    new_attacker_queries = [attacker_base + suffix + suffix_semantic for suffix in test_controls]
+    
+    # Batch compute embeddings on GPU
+    new_attacker_sen_embs = torch.stack([_sent_embed_from_text(query) for query in new_attacker_queries]).to(device)
+    
+    # Compute victim embedding once and move to GPU
+    victim_sentence_embedding = _sent_embed_from_text(victim_query).to(device)
+    
+    # Expand victim embedding for batch computation
+    victim_sentence_embedding = victim_sentence_embedding.expand_as(new_attacker_sen_embs)
+
+    # Compute scores in a vectorized manner on GPU
+    if target_function == 'cos_sim':
+        scores = torch.nn.CosineSimilarity(dim=1)(new_attacker_sen_embs, victim_sentence_embedding)
+    elif target_function == 'euclidean':
+        diff = new_attacker_sen_embs.squeeze() - victim_sentence_embedding.squeeze()
+        scores = (-1) * torch.norm(diff, p=2, dim=1)
+
+    # Find max score and best suffix on GPU, then move result to CPU
+    max_score, max_idx = torch.max(scores, dim=0)
+    best_suffix = test_controls[max_idx.item()]
+
+    logging.debug("==========get_logits===============\n")
+    return max_score.item(), best_suffix
 
 def emb_get_logits(
     suffix_semantic,
@@ -736,7 +779,7 @@ def craft_malicious_white_box(target_question, target_answer):
                 
                 # logging.error(f"new_adv_suffix_text: {new_adv_suffix_text}")
 
-                max_score, best_suffix = emb_get_logits(
+                max_score, best_suffix = emb_get_logits_batch(
                     suffix_semantic=suffix_semantic,
                     control_start=suffix_embedding_start,
                     control_end=suffix_embedding_end,
