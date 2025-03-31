@@ -1,26 +1,18 @@
 [
     {
-        "Dataset": "squad",
-        "ASR": 0.93,
-        "total": 100,
-        "attack success": 93,
-        "injection success": 96,
-        "similar success": 95
-    },
-    {
         "Dataset": "MedQuad-MedicalQnADataset",
-        "ASR": 0.24,
+        "ASR": 0.25,
         "total": 100,
-        "attack success": 24,
-        "injection success": 98,
-        "similar success": 25
+        "attack success": 25,
+        "injection success": 96,
+        "similar success": 26
     },
     {
         "Dataset": "ms_marco",
-        "ASR": 0.71,
+        "ASR": 0.69,
         "total": 100,
-        "attack success": 71,
+        "attack success": 69,
         "injection success": 100,
-        "similar success": 71
+        "similar success": 69
     }
 ]
