@@ -103,9 +103,8 @@ def generate(prompt):
     completion = cached_llm.invoke(prompt, cache_obj=the_cache)
     return completion
 
-def rebuild_cache():
+def rebuild_cache(noise_questions):
     global cached_llm
-    global noise_questions
     cached_llm = init_cache()
     inject_noise(noise_questions)
     
@@ -129,7 +128,6 @@ NOISE_NUM = 800
 the_cache = Cache()
 data_dir = 'attack'
 cached_llm = init_cache()
-noise_questions = []
 
 input_path = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/adv_black/"
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evaluation_subsecion_1/gptcache/results_noise/'
@@ -137,7 +135,7 @@ noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluatio
 datasets = {
     # "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    "ms_marco": "ms_marco_targeted.json"
+    # "ms_marco": "ms_marco_targeted.json"
 }
 
 
@@ -145,19 +143,20 @@ if __name__ == '__main__':
     stat = []
     stat_file = output_path + f"gptcache_summary.json"
     for dataset_id in datasets:
-        noise_file = noise_path + f"{dataset_id}_noise.json"
+        noise_file = noise_path + f"filtered_{dataset_id}_noise.json"
         input_file = input_path + f"short_poisoned_{dataset_id}.json"
-        output_file = output_path + f"gptcache_noise_cossim_faiss_{dataset_id}.json"
+        output_file = output_path + f"gptcache_noise_recheck_{dataset_id}.json"
         
         with open(input_file, 'r') as f:
             data = json.load(f)
-        
         target = []
         for item in data:
             target.append(item['question'])
             
-        noise_questions = load_noise(noise_file, target)
-        rebuild_cache()
+        with open(noise_file, 'r') as f:
+            noise_questions = json.load(f)
+
+        rebuild_cache(noise_questions)
         
         generated = set()
         retest = []
@@ -182,7 +181,7 @@ if __name__ == '__main__':
             attacker_response = generate(adv)
             victim_response = generate(question)
             if attacker_response in generated or victim_response in generated:
-                rebuild_cache()
+                rebuild_cache(noise_questions)
                 attacker_response = generate(adv)
                 victim_response = generate(question)
 
