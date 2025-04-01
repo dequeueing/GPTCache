@@ -18,13 +18,13 @@ if __name__ == "__main__":
     used_indices = set()  # Track used questions to avoid repetition
 
     # Number of unique questions to select
-    num_questions_to_select = 1500
+    num_questions_to_select = 2500
 
     # Check if there are enough questions in the dataset
     if num_questions_to_select > total_questions:
         raise ValueError("Not enough unique questions in dataset!")
 
-    # Select 1500 unique questions
+    # Select num_questions_to_select unique questions
     while len(results) < num_questions_to_select:
         idx = random.randint(0, total_questions - 1)
         if idx not in used_indices:
