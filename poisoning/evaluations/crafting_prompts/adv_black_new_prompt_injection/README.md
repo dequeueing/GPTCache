@@ -1,4 +1,4 @@
 4/2
+
+
 One problem is why are we repeating the target questions twice. this is ad-hoc and we should explain it properly. 
-we craft new prompts in adv_black_new_pi, which is the ignore pattern.
-and the dont print pattern is in adv black. 
