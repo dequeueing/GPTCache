@@ -36,16 +36,16 @@ def cosine_sim_batch(queries1, queries2):
         
         return torch.nn.functional.cosine_similarity(q1_sent_emb, q2_sent_emb).cpu().numpy()
 
-# Function to get noise questions following a normal distribution
-def get_normal_distribution(dist_mean: float, number: int, all_noise):
+def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int = 20):
     """Return a subset of noise IDs where cosine similarity follows a normal distribution."""
+    if seed is not None:
+        np.random.seed(seed)  # Set the seed for reproducibility
     cosine_similarities = np.array([noise['dist'] for noise in all_noise])
     std_dev = np.std(cosine_similarities) if np.std(cosine_similarities) > 0 else 1  # Avoid division by zero
     probabilities = np.exp(-0.5 * ((cosine_similarities - dist_mean) / std_dev) ** 2)
     probabilities /= probabilities.sum()
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
-
 
 def plot_distribution(all_noise, selected_ids, dataset_id, goal_sim):
     """
@@ -121,7 +121,6 @@ if __name__ == '__main__':
             target_question = item['question']
             adv_question = item['adv']
             goal_sim = cosine_sim_batch(target_question, adv_question)[0]
-            print(goal_sim)
             
             # Extract noise questions and IDs
             noise_questions = [noise['question'] for noise in all_noise]
