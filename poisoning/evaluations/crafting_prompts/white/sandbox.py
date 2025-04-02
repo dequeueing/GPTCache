@@ -839,11 +839,6 @@ if __name__ == "__main__":
 
     
     adv, sim, score = craft_malicious_white_box(question, wrong)
-    # except Exception:
-    #     print(f"exception occurs during white-box; fallback to black-box")
-    #     adv = craft_malicious_black_box(question, wrong)
-    #     sim = 0
-    #     score = 0
         
     print(adv)
     print(sim)
