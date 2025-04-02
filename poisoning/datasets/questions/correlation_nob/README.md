@@ -8,3 +8,7 @@ There are 100 <Qtarget, Qadv> pairs in total. For each Qtarget, we need to synth
 We just need a distribution, we dont need the CosSim(Qtarget, Qnoise) for each noise in the datasets. 
 But is it that time-consuming? 
 We can have a try. 
+
+
+----------------
+New: we found that the selected subsets does not have effective noise. We should further see the semantic score for target question.    
