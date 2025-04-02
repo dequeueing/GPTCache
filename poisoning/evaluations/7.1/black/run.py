@@ -48,15 +48,23 @@ def check_inject_success(attacker_response, target_answer):
 
 
 input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/prompts/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results/compare/'
 datasets = {
-    # "squad": "squad_targeted.json",
+    "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    # "ms_marco": "ms_marco_targeted.json"
+    "ms_marco": "ms_marco_targeted.json"
 }
+# prompt_injection_patterns = [
+#     'dont_answer_PI_', 
+#     # 'ignore_PI_'
+# ]
+
 prompt_injection_patterns = [
-    'dont_answer_PI_', 
-    # 'ignore_PI_'
+    'dont_answer_no_repeat_', 
+    'dont_answer_tripple_repeat_', 
+    # 'ignore_PI_',
+    # 'ignore_no_repeat_',
+    'ignore_tripple_repeat_',
 ]
 
 if __name__ == '__main__':
@@ -66,7 +74,7 @@ if __name__ == '__main__':
         for dataset_id in datasets:
             
             input_file = input_path + f"{pattern}{dataset_id}.json"
-            output_file = output_path + f"E71_{pattern}{dataset_id}.json"
+            output_file = output_path + f"compare_{pattern}{dataset_id}.json"
             
             # load data
             with open(input_file, 'r') as f:
