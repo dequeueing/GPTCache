@@ -9,6 +9,7 @@ from util import *
 def generate(prompt):
     prompt = after_template(prompt, tokenizer)
     completion = cached_llm.invoke(prompt, cache_obj=the_cache)
+    completion = completion.strip('.')
     return completion
 
 def get_config(config:str, value):
@@ -67,12 +68,12 @@ input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluatio
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/results/'
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/noise/'
 datasets = {
-    # "squad": "squad_targeted.json",
-    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    "squad": "squad_targeted.json",
+    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
     "ms_marco": "ms_marco_targeted.json"
 }
 prompt_injection_patterns = [
-    # 'dont_answer_PI_', 
+    'dont_answer_PI_', 
     'ignore_PI_'
 ]
 
