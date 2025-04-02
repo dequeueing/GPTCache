@@ -50,6 +50,7 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
 
+
 def plot_distribution(all_noise, selected_ids, dataset_id, goal_sim, target_question, adv_question):
     if not all_noise or not isinstance(all_noise, list):
         raise ValueError("all_noise must be a non-empty list")
@@ -111,8 +112,23 @@ def plot_distribution(all_noise, selected_ids, dataset_id, goal_sim, target_ques
     plt.savefig(f"plot/{dataset_id}_{mean}_semantic_adv.png")
     plt.show()
 
+    # Print top-scoring noise questions
+    print(f"\nTop 5 Noise Questions with Highest Semantic Scores vs. Target:")
+    target_indices = np.argsort(semantic_scores_target)[-5:][::-1]  # Top 5 indices
+    for idx in target_indices:
+        score = semantic_scores_target[idx]
+        question = selected_noise_questions[idx]
+        print(f"Score: {score:.4f}, Question: {question}")
+
+    print(f"\nTop 5 Noise Questions with Highest Semantic Scores vs. Adv:")
+    adv_indices = np.argsort(semantic_scores_adv)[-5:][::-1]  # Top 5 indices
+    for idx in adv_indices:
+        score = semantic_scores_adv[idx]
+        question = all_noise_questions[idx]
+        print(f"Score: {score:.4f}, Question: {question}")
+
     # Print numerical details
-    print(f"Dataset: {dataset_id}")
+    print(f"\nDataset: {dataset_id}")
     print(f"Goal Similarity: {goal_sim:.4f}")
     print(f"All Noise Cosine - Mean: {np.mean(all_dist_values):.4f}, Std: {np.std(all_dist_values):.4f}")
     print(f"Selected Cosine - Mean: {np.mean(selected_dist_values):.4f}, Std: {np.std(selected_dist_values):.4f}")
@@ -125,13 +141,14 @@ def plot_distribution(all_noise, selected_ids, dataset_id, goal_sim, target_ques
     print(f"All Noise Semantic Count (>= 0.7) vs. Adv: {len(filtered_semantic_scores_adv)}")
     print(f"Total Selected Count: {len(selected_dist_values)}")
 
+
 # File paths
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/correlation_nob/noise/'
 prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/correlation_nob/prompts/'
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/datasets/questions/correlation_nob/'
 
 datasets = ["squad"]
-mean = 0.7
+mean = 1
 
 if __name__ == '__main__':
     for dataset_id in datasets:
@@ -143,11 +160,13 @@ if __name__ == '__main__':
         with open(prompt_file, 'r') as file:
             target = json.load(file)
             
-        for i in range(0, len(target), 100):
+        cnt = 0
+        for i in range(0, len(target)):
             item = target[i]
             target_question = item['question']
             adv_question = item['adv']
             goal_sim = cosine_sim_batch(target_question, adv_question)[0]
+            # print(f"target_question is: {target_question}")
             
             noise_questions = [noise['question'] for noise in all_noise]
             noise_ids = [noise['id'] for noise in all_noise]
@@ -164,5 +183,10 @@ if __name__ == '__main__':
                 noise["dist"] = all_similarities[i]
 
             selected_ids = get_normal_distribution(dist_mean=mean, number=500, all_noise=all_noise)
-            print(f"selected mean value: {mean}")
-            plot_distribution(all_noise, selected_ids, dataset_id, goal_sim, target_question, adv_question)
+            selected_questions = [all_noise[i]['question'] for i in selected_ids]
+            if target_question in selected_questions:
+                cnt += 1 
+                
+            # plot_distribution(all_noise, selected_ids, dataset_id, goal_sim, target_question, adv_question)
+            
+        print(f"target question selected out: {cnt}")
