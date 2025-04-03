@@ -19,7 +19,7 @@ def set_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',  # Optional: to include timestamps and log levels
-        filename='pipeline.log',  # Specify the file where logs should be saved
+        filename='semantic.log',  # Specify the file where logs should be saved
         filemode='w'  # 'a'  append, 'w' overwrite
     )
     
