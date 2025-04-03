@@ -13,7 +13,7 @@ def craft_malicious_white_box_embedding_only(target_question, target_answer):
     )
 
     # Prepare suffix for embedding and semantic
-    suffix_embedding = '!' * len(target_question)  
+    suffix_embedding = '!' * len(target_question)
     suffix_semantic =''
 
     attacker_query = attacker_query_base + suffix_embedding
@@ -102,10 +102,11 @@ datasets = [
 
 
 if __name__ == "__main__":
-    set_seed()
-    set_logging()
     
     for dataset_id in datasets:
+        set_seed()
+        set_logging(dataset_id)        
+
         input_file = input_path + f"{dataset_id}.json"
         output_file = output_path + f"{dataset_id}.json"
         with open(input_file, 'r') as file:

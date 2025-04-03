@@ -95,17 +95,18 @@ def craft_malicious_white_box_embedding_only(target_question, target_answer):
 input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/E71_white/prompts_raw/'
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/E71_white/results/'
 datasets = [
-    "squad",
-    # "MedQuad-MedicalQnADataset",
+    # "squad",
+    "MedQuad-MedicalQnADataset",
     # "ms_marco".
 ]
 
 
-if __name__ == "__main__":
-    set_seed()
-    set_logging()
-    
+if __name__ == "__main__":    
     for dataset_id in datasets:
+        set_seed()
+        set_logging(dataset_id)
+
+        
         input_file = input_path + f"{dataset_id}.json"
         output_file = output_path + f"{dataset_id}.json"
         with open(input_file, 'r') as file:
