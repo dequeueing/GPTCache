@@ -107,11 +107,11 @@ prompt_injection_patterns = [
 ]
 
 configs = {
-    # 'thresholds': [0.2, 0.4, 0.6, 0.8, 0.9],  
+    # 'thresholds': [0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 1.0],  
     # 'top_k': [1, 3, 5, 10],
     # 'noise_number': [0, 500, 1000, 2000],
-    # 'correlation': [0.5, 0.6, 0.7, 0.8],
-    'correlation': [0.6, 0.7, 0.8],
+    'noise_number': [5000],
+    # 'correlation': [0.85, 0.9, 0.95,  1.0],
 }
 
 default = {

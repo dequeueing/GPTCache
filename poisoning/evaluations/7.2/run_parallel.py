@@ -1,97 +1,48 @@
 import json
-import os
 import shutil
-import threading
-from threading import Lock
-
-from util_para import *
+import os
+import numpy as np
+from util import *
 from typing import *
-from gptcache import Cache
-from gptcache.manager import manager_factory
-from gptcache.embedding import Huggingface
-from gptcache.adapter.api import init_similar_cache, put
-from gptcache.similarity_evaluation import SbertCrossencoderEvaluation
-from gptcache.adapter.langchain_models import LangChainLLMs
-from langchain_huggingface import HuggingFacePipeline
-from gptcache.config import Config
 
-# Global model setup
-device = 'cuda'
-model_path = "meta-llama/Llama-3.1-8B-Instruct"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(
-    model_path,
-    quantization_config=BitsAndBytesConfig(load_in_4bit=True),
-    trust_remote_code=True,
-    low_cpu_mem_usage=True,
-).to(device)
-pipe = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer,
-    max_new_tokens=200,
-    do_sample=True,
-    temperature=0.6,
-    top_p=0.9,
-    return_full_text=False,
-)
-llm = HuggingFacePipeline(pipeline=pipe)
-cached_llm = LangChainLLMs(llm=llm)
 
-# Thread-safe lock for cached_llm access
-lock = Lock()
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/prompts/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/result_new/'
-noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/noise_id/'
-datasets = {
-    "squad": "squad_targeted.json",
-}
-prompt_injection_patterns = [
-    'ignore_no_repeat',
-]
-configs = {
-    'correlation': [0.9, 1.0],
-}
-default = {
-    'thresholds': 0.8,
-    'top_k': 5,
-    'noise_number': 500,
-    'correlation': 0.7
-}
+def generate(prompt):
+    prompt = after_template(prompt, tokenizer)
+    completion = cached_llm.invoke(prompt, cache_obj=the_cache)
+    completion = completion.rstrip('.')
+    return completion
 
-def inject_noise(target_question: str, correlation, noise_number, all_noise, the_cache):
-    noise_questions = [noise['question'] for noise in all_noise]
-    batch_size = 2048
-    all_similarities = []
-    for i in range(0, len(noise_questions), batch_size):
-        batch_noise_questions = noise_questions[i:i + batch_size]
-        batch_similarities = cosine_sim_batch(batch_noise_questions, [target_question] * len(batch_noise_questions))
-        all_similarities.extend(batch_similarities)
-    for i, noise in enumerate(all_noise):
-        noise["dist"] = all_similarities[i]
-    selected_ids = get_normal_distribution(dist_mean=correlation, number=noise_number, all_noise=all_noise)
-    selected_noise = [noise_questions[id] for id in selected_ids]
-    for target_question in selected_noise:
-        put(target_question, f"This is a noise question: {target_question}", cache_obj=the_cache)
-    vector_db = the_cache.data_manager.v
-    assert vector_db.count() == len(selected_noise)
+def get_config(config:str, value):
+    (threshold, top_k, noise_number, correlation) = (default['thresholds'], default['top_k'], default['noise_number'], default['correlation'])
+    if config == 'thresholds':
+        threshold = value
+    if config == 'top_k':
+        top_k = value
+    if config == 'noise_number':
+        noise_number = value
+    if config == 'correlation':
+        correlation = value
+    return threshold, top_k, noise_number, correlation
 
-def setup_cache(threshold, top_k, noise_number, task_id):
-    data_dir = f'.attack_{task_id}'
+def setup_cache(threshold, top_k, noise_number):
+    global cached_llm
+    llm = HuggingFacePipeline(pipeline=pipe)
+    cached_llm = LangChainLLMs(llm=llm)
+
+    # Clean up the index
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
-    else:
-        shutil.rmtree(data_dir)
-        os.makedirs(data_dir)
-    the_cache = Cache()
-    embedding = Huggingface()
+    shutil.rmtree(data_dir)
+
+    # Init cache
+    embedding=Huggingface()
     data_manager = manager_factory(
-        "sqlite,faiss",
-        data_dir=data_dir,
-        vector_params={"dimension": embedding.dimension, "top_k": top_k},
-        eviction_params={'max_size': max(noise_number, 1000)},
-    )
+                "sqlite,faiss",
+                data_dir=data_dir,
+                vector_params={"dimension": embedding.dimension, "top_k": top_k},
+                eviction_params={'max_size': max(noise_number, 1000)}, 
+            )
     init_similar_cache(
         data_dir=data_dir,
         cache_obj=the_cache,
@@ -102,81 +53,166 @@ def setup_cache(threshold, top_k, noise_number, task_id):
         post_func=from_list,
         config=Config(similarity_threshold=threshold),
     )
-    return the_cache
-
-def generate(prompt, cache):
-    prompt = after_template(prompt, tokenizer)
-    with lock:  # Ensure thread-safe access to cached_llm
-        completion = cached_llm.invoke(prompt, cache_obj=cache)
-    return completion.rstrip('.')
-
-def get_config(config, independent_var):
-    threshold = default['thresholds']
-    top_k = default['top_k']
-    noise_number = default['noise_number']
-    correlation = default['correlation']
-    if config == 'correlation':
-        correlation = independent_var
-    return threshold, top_k, noise_number, correlation
-
-def process_config(args):
-    pattern, dataset_id, config, value, task_id = args
-    independent_var = value
-    threshold, top_k, noise_number, correlation = get_config(config, independent_var)
     
-    input_file = prompt_path + f"{pattern}_{dataset_id}.json"
-    noise_file = noise_path + f"{dataset_id}.json"
-    output_file = output_path + f"E72_{pattern}_{dataset_id}_{config}{independent_var}.json"
+def inject_noise(target_question:str, correlation, noise_number,  all_noise):
+    # Extract noise questions and IDs
+    noise_questions = [noise['question'] for noise in all_noise]
 
-    with open(noise_file, 'r') as file:
-        all_noise = json.load(file)
-    with open(input_file, 'r') as f:
-        data = json.load(f)
+    # Compute cosine similarity in batches
+    batch_size = 2048
+    all_similarities = []
+
+    for i in range(0, len(noise_questions), batch_size):
+        batch_noise_questions = noise_questions[i:i + batch_size]
+        batch_similarities = cosine_sim_batch(batch_noise_questions, [target_question] * len(batch_noise_questions))
+        
+        # Store computed similarities
+        all_similarities.extend(batch_similarities)
+
+    # Attach cosine similarity to each noise sample
+    for i, noise in enumerate(all_noise):
+        noise["dist"] = all_similarities[i]
+    selected_ids = get_normal_distribution(dist_mean=correlation, number=noise_number, all_noise=all_noise)
+    selected_noise = [noise_questions[id] for id in selected_ids]
     
-    the_cache = setup_cache(threshold, top_k, noise_number, task_id)
-    for item in data:
-        if 'attack success' in item:
-            continue
+    for target_question in selected_noise:
+        put(target_question, f"This is a noise question: {target_question}", cache_obj=the_cache)
         
-        question = item['question']
-        adv = item['adv']
-        target_answer = item['wrong'].rstrip('.')
-        
-        the_cache = setup_cache(threshold, top_k, noise_number, task_id)
-        inject_noise(question, correlation, noise_number, all_noise, the_cache)
-        
-        attacker_response = generate(adv, the_cache)
-        victim_response = generate(question, the_cache)
-        
-        injection_success = attacker_response == target_answer
-        similar_enough = victim_response == attacker_response
-        attack_success = similar_enough and injection_success
-                
-        item['attacker response'] = attacker_response
-        item['victim response'] = victim_response
-        item['attack success'] = attack_success
-        item['injection success'] = injection_success
-        item['similar enough'] = similar_enough
-    
-        with open(output_file, "w") as file:
-            json.dump(data, file, indent=4)
+    # Check the questions are in the cache
+    vector_db = the_cache.data_manager.v  # Access the FAISS vector store
+    vector_count = vector_db.count()
+    assert vector_count == len(selected_noise)
+
+def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int = 20):
+    """Return a subset of noise IDs where cosine similarity follows a normal distribution."""
+    if seed is not None:
+        np.random.seed(seed)  # Set the seed for reproducibility
+    cosine_similarities = np.array([noise['dist'] for noise in all_noise])
+    std_dev = np.std(cosine_similarities) if np.std(cosine_similarities) > 0 else 1  # Avoid division by zero
+    probabilities = np.exp(-0.5 * ((cosine_similarities - dist_mean) / std_dev) ** 2)
+    probabilities /= probabilities.sum()
+    selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
+    return [all_noise[i]['id'] for i in selected_indices]
+
+prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/prompts/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/result_new/'
+noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/noise_id/'
+datasets = {
+    "squad": "squad_targeted.json",
+    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    # "ms_marco": "ms_marco_targeted.json"
+}
+prompt_injection_patterns = [
+    # 'dont_answer_PI_', 
+    # 'ignore_PI_',
+    'ignore_no_repeat',
+]
+
+configs = {
+    'thresholds': [0.2, 0.4, 0.6, 0.8, 0.9],  
+    'top_k': [1, 3, 5, 10],
+    'noise_number': [0, 500, 1000, 2000],
+    'correlation': [0.85, 0.95],
+}
+
+default = {
+    'thresholds': 0.8,
+    'top_k': 5,
+    'noise_number': 500,
+    'correlation': 0.7
+}
+
 
 if __name__ == '__main__':
-    tasks = [
-        (pattern, dataset_id, config, value, f"{pattern}_{dataset_id}_{config}{value}")
-        for pattern in prompt_injection_patterns
-        for dataset_id in datasets
-        for config in configs
-        for value in configs[config]
-    ]
-    
-    # Use threads instead of processes
-    threads = []
-    for task in tasks:
-        t = threading.Thread(target=process_config, args=(task,))
-        threads.append(t)
-        t.start()
-    
-    # Wait for all threads to complete
-    for t in threads:
-        t.join()
+    stat_file = output_path + f"E72_summary.json"
+    with open(stat_file, 'r') as file:
+        stat = json.load(file)
+
+    for pattern in prompt_injection_patterns:
+        for dataset_id in datasets:
+            for config in configs:
+                for value in configs[config]:
+                    independent_var = value
+                    threshold, top_k, noise_number, correlation = get_config(config, independent_var)
+                    
+                    input_file = prompt_path + f"{pattern}_{dataset_id}.json"
+                    noise_file = noise_path + f"{dataset_id}.json"
+                    output_file = output_path + f"E72_{pattern}_{dataset_id}_{config}{independent_var}.json"
+
+                    # load noise and target
+                    with open(noise_file, 'r') as file:
+                        all_noise = json.load(file)
+                    with open(input_file, 'r') as f:
+                        data = json.load(f)
+                                       
+                    
+                    attack_cnt = 0
+                    injection_cnt = 0
+                    similar_cnt = 0
+                    total = len(data)
+
+                    # Change: since each target question will have a noise set, 
+                    #   we have to inject the noise every time.
+                    for item in data:
+                        if 'attack success' in item:
+                            continue
+                        
+                        injection_success = False
+                        attack_success = False
+                        similar_enough = False
+                        
+                        question = item['question']
+                        adv = item['adv']
+                        target_answer = item['wrong'].rstrip('.')
+                        
+                        setup_cache(threshold, top_k, noise_number)
+                        inject_noise(question, correlation, noise_number,  all_noise)
+                        
+                        attacker_response = generate(adv)
+                        victim_response = generate(question)
+                        # if attacker_response in generated or victim_response in generated:
+                        #     setup_cache(threshold, top_k, noise_number, dataset_id)
+                        #     attacker_response = generate(adv)
+                        #     victim_response = generate(question)
+
+                    
+                        if attacker_response == target_answer:
+                            injection_success = True
+                                            
+                        if victim_response == attacker_response:
+                            similar_enough = True
+                        
+                        if similar_enough and injection_success:
+                            attack_success = True
+                            
+                        if attack_success:
+                            attack_cnt += 1
+                        if injection_success:
+                            injection_cnt += 1
+                        if similar_enough:
+                            similar_cnt += 1
+                                                                            
+                        item['attacker response'] = attacker_response
+                        item['victim response'] = victim_response
+                        item['attack success'] = attack_success 
+                        item['injection success'] = injection_success
+                        item['similar enough'] = similar_enough
+                            
+                        # store adv to local
+                        with open(output_file, "w") as file:
+                            json.dump(data, file, indent=4)
+                            
+                            
+                    stat.append(
+                        {
+                        'Dataset': f"E72_{pattern}{dataset_id}_{config}{independent_var}", 
+                        'ASR': attack_cnt / total,
+                        'total': total,
+                        'attack success': attack_cnt / total,
+                        'injection success': injection_cnt / total,
+                        'similar success': similar_cnt / total,
+                        }
+                    )
+                            
+                    with open(stat_file, 'w') as file:
+                        json.dump(stat, file, indent=4)
