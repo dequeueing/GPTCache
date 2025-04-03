@@ -65,6 +65,12 @@ def plot_similarity_distribution(similarities, output_path, dataset_id):
     plt.tight_layout()
     plt.savefig(f'{output_path}{dataset_id}_distribution.png')
     plt.close()
+    
+def sample(similarities):
+    sample_size = min(1000000, len(similarities))
+    sampled_sim = np.random.choice(similarities, sample_size, replace=False).tolist()
+    return sampled_sim
+
 
 datasets = {
     "squad": "squad_targeted.json",
@@ -76,8 +82,12 @@ datasets = {
 if __name__ == '__main__':
     input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/all_noise/'
     output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/plots/'
+    data_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/'
+    
+    data = []
     for dataset_id in datasets:
         input_file = input_path + f"{dataset_id}.json"
+        data_file = data_path + f"{dataset_id}_data.json"
 
         with open(input_file, 'r') as file:
             all_noise = json.load(file)
@@ -88,6 +98,12 @@ if __name__ == '__main__':
         # Precompute embeddings
         embeddings = get_all_embeddings(questions, batch_size=2048)
         similarities = compute_all_similarities(embeddings)
+        
+        # plot_similarity_distribution(similarities, output_path, dataset_id)
+        # print(f"Plots saved to {output_path}{dataset_id}_distribution.png")
+        
+        samples = sample(similarities)        
+        with open(data_file, 'w') as f:
+            json.dump(samples, f, indent=2)
 
-        plot_similarity_distribution(similarities, output_path, dataset_id)
-        print(f"Plots saved to {output_path}{dataset_id}_distribution.png")
+
