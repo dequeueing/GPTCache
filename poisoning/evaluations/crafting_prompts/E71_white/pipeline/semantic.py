@@ -1,15 +1,6 @@
 import json
 from util_para import *
 
-
-input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/E71_white/jsons_filtered/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/E71_white/results/'
-datasets = [
-    # "squad",
-    "MedQuad-MedicalQnADataset",
-    "ms_marco",
-]
-
 threshold_sem = 0.9
 threshold_target_function = 0.8
 
@@ -109,29 +100,37 @@ def craft_malicious_white_box_semantic_only(target_question, adv_existing, suffi
     return best_attack, float(best_sim), float(score)
 
 
+input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/E71_white/results/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/E71_white/results/'
+datasets = [
+    "squad",
+    "MedQuad-MedicalQnADataset",
+    "ms_marco",
+]
+
 if __name__ == "__main__":
     set_seed()
     set_logging()
     
     for dataset_id in datasets:
         input_file = input_path + f"{dataset_id}.json"
-        output_file = output_path + f"semantic_{dataset_id}.json"
+        output_file = output_path + f"white_{dataset_id}.json"
         with open(input_file, 'r') as file:
             data = json.load(file)
             
         # data = [data[0]] # comment this line
         for item in data:
-            adv_white = item['adv']
+            adv_white = item['adv_white']
             question = item['question']
             
             # TODO: how to deal with the case that cosine similarity is lower but semantic score is high?
             #  The ideal case is of course both scores are higher than black box.
-            adv_new, sim_new, score_new = craft_malicious_white_box_semantic_only(question, adv_white)
+            adv_final, sim_final, score_final = craft_malicious_white_box_semantic_only(question, adv_white)
             
             
-            item['adv_white'] = adv_new
-            item['cos_sim_new'] = sim_new
-            item['sem_score_new'] = score_new
+            item['adv_final'] = adv_final
+            item['cos_sim_final'] = sim_final
+            item['sem_score_final'] = score_final
             
             with open(output_file, "w") as file:
                 json.dump(data, file, indent=4)
