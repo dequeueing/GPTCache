@@ -1,0 +1,50 @@
+[
+    {
+        "Dataset": "E72_ignore_no_repeatsquad_noise_number500",
+        "ASR": 0.96,
+        "total": 100,
+        "attack success": 0.96,
+        "injection success": 0.96,
+        "similar success": 1.0
+    },
+    {
+        "Dataset": "E72_ignore_no_repeatMedQuad-MedicalQnADataset_noise_number500",
+        "ASR": 1.0,
+        "total": 100,
+        "attack success": 1.0,
+        "injection success": 1.0,
+        "similar success": 1.0
+    },
+    {
+        "Dataset": "E72_ignore_no_repeatms_marco_noise_number500",
+        "ASR": 0.94,
+        "total": 100,
+        "attack success": 0.94,
+        "injection success": 0.94,
+        "similar success": 1.0
+    },
+    {
+        "Dataset": "E72_ignore_no_repeatMedQuad-MedicalQnADataset_noise_number500",
+        "ASR": 0.0,
+        "total": 100,
+        "attack success": 0.0,
+        "injection success": 0.0,
+        "similar success": 0.71
+    },
+    {
+        "Dataset": "E72_ignore_no_repeatsquad_noise_number500",
+        "ASR": 0.0,
+        "total": 100,
+        "attack success": 0.0,
+        "injection success": 0.0,
+        "similar success": 0.74
+    },
+    {
+        "Dataset": "E72_ignore_no_repeatms_marco_noise_number500",
+        "ASR": 0.0,
+        "total": 100,
+        "attack success": 0.0,
+        "injection success": 0.0,
+        "similar success": 0.59
+    }
+]
