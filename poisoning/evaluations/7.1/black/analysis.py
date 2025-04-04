@@ -3,21 +3,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results/compare/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results/compare/'
+input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results_final/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results_final/'
 datasets = {
     "squad": "squad_targeted.json",
-    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    # "ms_marco": "ms_marco_targeted.json"
+    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    "ms_marco": "ms_marco_targeted.json"
 }
 # prompt_injection_patterns = ['dont_answer_PI_', 'ignore_PI_']
 prompt_injection_patterns = [
-    'dont_answer_no_repeat_', 
-    'dont_answer_tripple_repeat_', 
-    'dont_answer_PI_', 
-    'ignore_PI_',
+    # 'dont_answer_no_repeat_', 
+    # 'dont_answer_tripple_repeat_', 
+    # 'dont_answer_PI_', 
+    # 'ignore_PI_',
     'ignore_no_repeat_',
-    'ignore_tripple_repeat_',
+    # 'ignore_tripple_repeat_',
 ]
 
 
@@ -25,10 +25,10 @@ if __name__ == '__main__':
     all_stats = {}
     for pattern in prompt_injection_patterns:
         for dataset_id in datasets:
-            input_file = input_path  + f"compare_{pattern}{dataset_id}.json"
-            histogram_png = output_path + f"compare_histogram_{pattern}{dataset_id}.png"
-            correlation_png = output_path  + f"compare_correlation_{pattern}{dataset_id}.png"
-            stat_file = output_path + f"compare_summary.json"
+            input_file = input_path  + f"E71_final_{pattern}{dataset_id}.json"
+            histogram_png = output_path + f"E71_final__histogram_{pattern}{dataset_id}.png"
+            correlation_png = output_path  + f"E71_final__correlation_{pattern}{dataset_id}.png"
+            stat_file = output_path + f"E71_final_summary.json"
             
             with open(input_file, 'r') as file:
                 data = json.load(file)
@@ -98,6 +98,6 @@ if __name__ == '__main__':
             plt.title("Correlation Matrix")
             # plt.savefig(correlation_png, dpi=300)
 
-    # Write all statistics to JSON file
-    with open(stat_file, 'w') as f:
-        json.dump(all_stats, f, indent=4)
+        # Write all statistics to JSON file
+        with open(stat_file, 'w') as f:
+            json.dump(all_stats, f, indent=4)
