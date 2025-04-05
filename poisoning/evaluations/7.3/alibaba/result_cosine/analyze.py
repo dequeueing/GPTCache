@@ -69,40 +69,29 @@ def compute(noise, prompt):
     noise = torch.tensor(get_embedding(noise))
     prompt = torch.tensor(get_embedding(prompt))
     
-    cosine_sim = torch.nn.functional.cosine_similarity(noise, prompt, dim=0)
-    # euclidean_dist = torch.norm(noise - prompt)
+    # cosine_sim = torch.nn.functional.cosine_similarity(noise, prompt, dim=0)
+    euclidean_dist = torch.norm(noise - prompt)
 
     # return cosine_sim.item(), euclidean_dist.item()    
-    return cosine_sim.item()
-
+    return euclidean_dist.item()    
 
 import json
 import os
 
 # Get current directory
 current_dir = os.getcwd()
-json_files = [f for f in os.listdir(current_dir) if f.endswith('.json')]
+# json_files = [f for f in os.listdir(current_dir) if f.endswith('.json')]
+json_files = ['/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/alibaba/result_cosine/failed_E73_ignore_no_repeat_ms_marco_noise_number500.json']
 
 # Process each JSON file separately
-for json_file in json_files:
-    if 'failed' not in json_file:
-        continue
-    file_path = os.path.join(current_dir, json_file)
-    failed_attacks = []  # Reset for each file
-    
-    # Read the JSON file
+for file_path in json_files:    
     with open(file_path, 'r') as f:
         data = json.load(f)
-        # Handle both single dict and list of dicts
         
     for item in data:     
-        # count noise inference
-        # if 'This is a noise question' in item.get("attacker response") :
-        #     noise_cnt += 1
-        
         question = item['question']
         adv = item['adv']
-        item['question_adv_cosine_sim'] = compute(question, adv)
+        item['question_adv_euclidean'] = compute(question, adv)
             
     with open(file_path, 'w') as f:
         json.dump(data, f, indent=4)

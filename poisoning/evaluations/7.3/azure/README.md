@@ -1,0 +1,1 @@
+We cannot access openai since it is banned. So we can only run the evaluation on azure. 
