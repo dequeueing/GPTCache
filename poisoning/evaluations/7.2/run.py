@@ -93,7 +93,7 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     return [all_noise[i]['id'] for i in selected_indices]
 
 prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/prompts/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/result_new/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/result_strange/'
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/noise_id/'
 datasets = {
     "squad": "squad_targeted.json",
@@ -104,14 +104,16 @@ prompt_injection_patterns = [
     # 'dont_answer_PI_', 
     # 'ignore_PI_',
     'ignore_no_repeat',
+    'only',
 ]
 
 configs = {
+    # 'thresholds': [0.8],  
     # 'thresholds': [0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 1.0],  
     # 'top_k': [1, 3, 5, 10],
-    # 'noise_number': [0, 500, 1000, 2000],
-    'noise_number': [5000],
-    # 'correlation': [0.85, 0.9, 0.95,  1.0],
+    # 'noise_number': [0, 500, 1000, 2000, 5000],
+    # 'correlation': [0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0],
+    'correlation': [0.85, 0.9],
 }
 
 default = {
@@ -123,7 +125,7 @@ default = {
 
 
 if __name__ == '__main__':
-    stat_file = output_path + f"E72_summary.json"
+    stat_file = output_path + f"E72_correlation_redo_summary.json"
     with open(stat_file, 'r') as file:
         stat = json.load(file)
 
@@ -134,14 +136,14 @@ if __name__ == '__main__':
                     independent_var = value
                     threshold, top_k, noise_number, correlation = get_config(config, independent_var)
                     
-                    input_file = prompt_path + f"{pattern}_{dataset_id}.json"
+                    prompt_file = prompt_path + f"{pattern}_{dataset_id}.json"
                     noise_file = noise_path + f"{dataset_id}.json"
-                    output_file = output_path + f"E72_{pattern}_{dataset_id}_{config}{independent_var}.json"
+                    output_file = output_path + f"E72_correlation_redo_{pattern}_{dataset_id}_{config}{independent_var}.json"
 
                     # load noise and target
                     with open(noise_file, 'r') as file:
                         all_noise = json.load(file)
-                    with open(input_file, 'r') as f:
+                    with open(prompt_file, 'r') as f:
                         data = json.load(f)
                                        
                     
@@ -161,7 +163,7 @@ if __name__ == '__main__':
                         similar_enough = False
                         
                         question = item['question']
-                        adv = item['adv']
+                        adv = item['white'] if pattern == 'only' else item['adv']
                         target_answer = item['wrong'].rstrip('.')
                         
                         setup_cache(threshold, top_k, noise_number)
