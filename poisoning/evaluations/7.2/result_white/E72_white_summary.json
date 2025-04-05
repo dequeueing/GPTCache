@@ -1,0 +1,194 @@
+[
+    {
+        "Dataset": "E72_onlysquad_thresholds0.2",
+        "ASR": 0.89,
+        "total": 100,
+        "attack success": 0.89,
+        "injection success": 0.94,
+        "similar success": 0.95
+    },
+    {
+        "Dataset": "E72_onlysquad_thresholds0.4",
+        "ASR": 0.89,
+        "total": 100,
+        "attack success": 0.89,
+        "injection success": 0.94,
+        "similar success": 0.95
+    },
+    {
+        "Dataset": "E72_onlysquad_thresholds0.6",
+        "ASR": 0.87,
+        "total": 100,
+        "attack success": 0.87,
+        "injection success": 0.93,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_thresholds0.8",
+        "ASR": 0.88,
+        "total": 100,
+        "attack success": 0.88,
+        "injection success": 0.94,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_thresholds0.9",
+        "ASR": 0.83,
+        "total": 100,
+        "attack success": 0.83,
+        "injection success": 0.93,
+        "similar success": 0.9
+    },
+    {
+        "Dataset": "E72_onlysquad_thresholds0.95",
+        "ASR": 0.77,
+        "total": 100,
+        "attack success": 0.77,
+        "injection success": 0.96,
+        "similar success": 0.81
+    },
+    {
+        "Dataset": "E72_onlysquad_thresholds1.0",
+        "ASR": 0.0,
+        "total": 100,
+        "attack success": 0.0,
+        "injection success": 0.95,
+        "similar success": 0.0
+    },
+    {
+        "Dataset": "E72_onlysquad_top_k1",
+        "ASR": 0.89,
+        "total": 100,
+        "attack success": 0.89,
+        "injection success": 0.95,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_top_k3",
+        "ASR": 0.88,
+        "total": 100,
+        "attack success": 0.88,
+        "injection success": 0.94,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_top_k5",
+        "ASR": 0.87,
+        "total": 100,
+        "attack success": 0.87,
+        "injection success": 0.93,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_top_k10",
+        "ASR": 0.87,
+        "total": 100,
+        "attack success": 0.87,
+        "injection success": 0.93,
+        "similar success": 0.93
+    },
+    {
+        "Dataset": "E72_onlysquad_noise_number0",
+        "ASR": 0.89,
+        "total": 100,
+        "attack success": 0.89,
+        "injection success": 0.95,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_noise_number500",
+        "ASR": 0.87,
+        "total": 100,
+        "attack success": 0.87,
+        "injection success": 0.93,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_noise_number1000",
+        "ASR": 0.88,
+        "total": 100,
+        "attack success": 0.88,
+        "injection success": 0.94,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_noise_number2000",
+        "ASR": 0.9,
+        "total": 100,
+        "attack success": 0.9,
+        "injection success": 0.96,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_noise_number5000",
+        "ASR": 0.89,
+        "total": 100,
+        "attack success": 0.89,
+        "injection success": 0.95,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation0.5",
+        "ASR": 0.88,
+        "total": 100,
+        "attack success": 0.88,
+        "injection success": 0.94,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation0.6",
+        "ASR": 0.88,
+        "total": 100,
+        "attack success": 0.88,
+        "injection success": 0.94,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation0.7",
+        "ASR": 0.89,
+        "total": 100,
+        "attack success": 0.89,
+        "injection success": 0.95,
+        "similar success": 0.94
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation0.8",
+        "ASR": 0.85,
+        "total": 100,
+        "attack success": 0.85,
+        "injection success": 0.94,
+        "similar success": 0.91
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation0.85",
+        "ASR": 0.68,
+        "total": 100,
+        "attack success": 0.68,
+        "injection success": 0.91,
+        "similar success": 0.75
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation0.9",
+        "ASR": 0.21,
+        "total": 100,
+        "attack success": 0.21,
+        "injection success": 0.37,
+        "similar success": 0.83
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation0.95",
+        "ASR": 0.0,
+        "total": 100,
+        "attack success": 0.0,
+        "injection success": 0.07,
+        "similar success": 0.92
+    },
+    {
+        "Dataset": "E72_onlysquad_correlation1.0",
+        "ASR": 0.0,
+        "total": 100,
+        "attack success": 0.0,
+        "injection success": 0.07,
+        "similar success": 0.92
+    }
+]
