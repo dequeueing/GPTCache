@@ -542,7 +542,7 @@ def sem_get_logits(
 
     # Batch prediction
     scores = semantic_encoder.predict(
-        list(zip(attacker_queries, victim_queries)),
+        list(zip(victim_queries, attacker_queries)),
         show_progress_bar=False,
         batch_size=32 
     )

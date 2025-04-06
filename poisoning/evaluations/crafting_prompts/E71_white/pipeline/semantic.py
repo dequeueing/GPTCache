@@ -35,7 +35,7 @@ def craft_malicious_white_box_semantic_only(target_question, adv_existing, suffi
     best_attack = attacker_query
     for _ in range(num_iter):
         # Is it the right way to do that?
-        sem_score = semantic_score(attacker_query, victim_query)
+        sem_score = semantic_score(victim_query, attacker_query)
         if sem_score >= threshold_sem and sem_score > best_sim:
             best_sim = sem_score
             best_attack = attacker_query
@@ -93,7 +93,7 @@ def craft_malicious_white_box_semantic_only(target_question, adv_existing, suffi
                 f"Semantic score: {max_score}, the attacker query: {repr(attacker_query)},"
             )
 
-    score = semantic_score(best_attack, victim_query)
+    score = semantic_score(victim_query,best_attack)
     best_sim = cosine_sim(best_attack, victim_query)
     return best_attack, float(best_sim), float(score)
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     
     
     input_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_answer.json"
-    output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white.json"
+    output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white_fix.json"
     with open(input_file, 'r') as file:
         data = json.load(file)
     
