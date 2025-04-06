@@ -1,0 +1,18 @@
+[
+    {
+        "Dataset": "E72_ignore_blackbox_no_repeatsquad_correlation0.85",
+        "ASR": 0.73,
+        "total": 100,
+        "attack success": 0.73,
+        "injection success": 0.98,
+        "similar success": 0.75
+    },
+    {
+        "Dataset": "E72_ignore_whitebox_no_repeatsquad_correlation0.85",
+        "ASR": 0.67,
+        "total": 100,
+        "attack success": 0.67,
+        "injection success": 0.95,
+        "similar success": 0.72
+    }
+]
