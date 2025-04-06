@@ -17,10 +17,10 @@ def generate(prompt):
     return image
 
 files = [
-    "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_answer.json",
+    "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white.json",
     # "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_questions.json"
 ]
-output_path = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/blackbox-{model_ids[model_id]}/"
+output_path = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/whitebox-{model_ids[model_id]}/"
 
 if __name__ == '__main__':
     random.seed(42)
@@ -30,7 +30,7 @@ if __name__ == '__main__':
             
         record = {}
         for index, item in enumerate(data):
-            adv = item['adv']
+            adv = item['white']
             # prompt = item['prompt']
             print(adv)
             image = generate(adv)
