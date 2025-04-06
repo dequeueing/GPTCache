@@ -30,5 +30,13 @@
         "attack success": 0.67,
         "injection success": 0.95,
         "similar success": 0.72
+    },
+    {
+        "Dataset": "E72_ignore_no_repeatsquad_correlation0.85",
+        "ASR": 0.77,
+        "total": 100,
+        "attack success": 0.77,
+        "injection success": 0.95,
+        "similar success": 0.82
     }
 ]

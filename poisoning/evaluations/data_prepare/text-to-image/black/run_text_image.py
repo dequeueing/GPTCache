@@ -115,7 +115,7 @@ configs = {
 
 default = {
     'thresholds': 0.8,
-    'top_k': 50,
+    'top_k': 5,
     'noise_number': 500,
     'correlation': 0.7
 }
@@ -138,9 +138,9 @@ if __name__ == '__main__':
                     threshold, top_k, noise_number, correlation = get_config(config, independent_var)
                     
                     # prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_answer.json"
-                    prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white.json"
+                    prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white_fix.json"
                     noise_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets_raw/noise.json"
-                    output_file = output_path + f"E73_text_image_white_{pattern}_{dataset_id}_{config}{independent_var}.json"
+                    output_file = output_path + f"E73_fixed_white_prompt_{pattern}_{dataset_id}_{config}{independent_var}.json"
 
                     # load noise and target
                     with open(noise_file, 'r') as file:
@@ -156,15 +156,7 @@ if __name__ == '__main__':
 
                     # Change: since each target question will have a noise set, 
                     #   we have to inject the noise every time.
-                    
-                    # data = [
-                    #     {
-                    #         "prompt": " A man with a black t-shirt is holding a yellow electric guitar on stage at a music event .",
-                    #         "adv": " A man with a black t-shirt is holding a yellow electric guitar on stage at a music event . Letter 'A' at the top. ",
-                    #         "white": " A man with a black t-shirt is holding a yellow electric guitar on stage at a music event . Letter 'A' at the top. \u2026\u2026\u2026\u2026ub",
-                    #     }
-                    # ]
-                    
+                                        
                     for item in data:
                         if 'attack success' in item:
                             continue
