@@ -20,7 +20,7 @@ files = [
     "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white.json",
     # "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_questions.json"
 ]
-output_path = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/whitebox-{model_ids[model_id]}/"
+output_path = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/prompt-{model_ids[model_id]}/"
 
 if __name__ == '__main__':
     random.seed(42)
@@ -30,14 +30,14 @@ if __name__ == '__main__':
             
         record = {}
         for index, item in enumerate(data):
-            adv = item['white']
+            prompt = item['prompt']
             # prompt = item['prompt']
-            print(adv)
-            image = generate(adv)
+            print(prompt)
+            image = generate(prompt)
             
             # output_file = output_path + model_ids[model_id] + '/' + prompt.rstrip('.')  + ".png"
             output_file = f"{output_path}{index}.png"
-            record[index] = adv
+            record[index] = prompt
             image.save(output_file)
             
         for item in record:

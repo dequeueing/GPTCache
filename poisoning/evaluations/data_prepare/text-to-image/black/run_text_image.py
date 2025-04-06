@@ -115,7 +115,7 @@ configs = {
 
 default = {
     'thresholds': 0.8,
-    'top_k': 5,
+    'top_k': 50,
     'noise_number': 500,
     'correlation': 0.7
 }
@@ -156,6 +156,15 @@ if __name__ == '__main__':
 
                     # Change: since each target question will have a noise set, 
                     #   we have to inject the noise every time.
+                    
+                    # data = [
+                    #     {
+                    #         "prompt": " A man with a black t-shirt is holding a yellow electric guitar on stage at a music event .",
+                    #         "adv": " A man with a black t-shirt is holding a yellow electric guitar on stage at a music event . Letter 'A' at the top. ",
+                    #         "white": " A man with a black t-shirt is holding a yellow electric guitar on stage at a music event . Letter 'A' at the top. \u2026\u2026\u2026\u2026ub",
+                    #     }
+                    # ]
+                    
                     for item in data:
                         if 'attack success' in item:
                             continue
