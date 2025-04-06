@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModel
 from sentence_transformers.cross_encoder import CrossEncoder
 
 
-num_iter = 100
+num_iter = 50
 threshold_target_function = 0.8
 
 def set_seed():
@@ -542,7 +542,7 @@ def sem_get_logits(
 
     # Batch prediction
     scores = semantic_encoder.predict(
-        list(zip(victim_queries, attacker_queries)),
+        list(zip(attacker_queries, victim_queries)),
         show_progress_bar=False,
         batch_size=32 
     )
