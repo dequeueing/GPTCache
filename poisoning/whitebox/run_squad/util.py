@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModel
 from sentence_transformers.cross_encoder import CrossEncoder
 
 
-num_iter = 100
+num_iter = 50
 threshold_target_function = 0.8
 
 def set_seed():
@@ -19,7 +19,7 @@ def set_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',  # Optional: to include timestamps and log levels
-        filename='pipeline.log',  # Specify the file where logs should be saved
+        filename='embedding.log',  # Specify the file where logs should be saved
         filemode='w'  # 'a'  append, 'w' overwrite
     )
     
