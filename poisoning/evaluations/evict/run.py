@@ -47,7 +47,7 @@ def setup_cache(cache_size):
         data_manager=data_manager,
         evaluation=SbertCrossencoderEvaluation(),
         post_func=from_list,
-        config=Config(similarity_threshold=0.8),
+        config=Config(similarity_threshold=0.2),
     )
     
     
@@ -79,8 +79,8 @@ default = {
 
 datasets =  [
     "squad",
-    "MedQuad-MedicalQnADataset",
-    "ms_marco"
+    # "MedQuad-MedicalQnADataset",
+    # "ms_marco"
 ]
 
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
                 
                 # load noise
                 noise_file = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evict/data/{dataset_id}.json'
-                output_file = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evict/results/{dataset_id}_{value}.json'
+                output_file = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evict/results_lower_threshold/{dataset_id}_{value}.json'
                 png_file = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/evict/pngs/{dataset_id}_{value}.png'
                 with open(noise_file, 'r') as f:
                     noise = json.load(f)
