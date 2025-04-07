@@ -98,10 +98,8 @@ datasets = {
     # "ms_marco": "ms_marco_targeted.json"
 }
 prompt_injection_patterns = [
-    # 'dont_answer_PI_', 
-    # 'ignore_PI_',
-    'ignore_no_repeat',
-    # 'only',
+    'white',
+    'black'
 ]
 
 configs = {
@@ -140,7 +138,7 @@ if __name__ == '__main__':
                     # prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_answer.json"
                     prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white_fix.json"
                     noise_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets_raw/noise.json"
-                    output_file = output_path + f"E73_fixed_white_prompt_{pattern}_{dataset_id}_{config}{independent_var}.json"
+                    output_file = output_path + f"E73_fixed_prompt_{pattern}_{dataset_id}_{config}{independent_var}.json"
 
                     # load noise and target
                     with open(noise_file, 'r') as file:
@@ -167,7 +165,10 @@ if __name__ == '__main__':
                         similar_enough = False
                         
                         question = item['prompt']
-                        adv = item['white']
+                        if pattern == 'white':
+                            adv = item['white']
+                        else:
+                            adv = item['adv']
                         
 
                         setup_cache(threshold, top_k, noise_number)

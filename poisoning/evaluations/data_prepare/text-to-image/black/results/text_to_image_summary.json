@@ -38,5 +38,21 @@
         "attack success": 0.77,
         "injection success": 0.95,
         "similar success": 0.82
+    },
+    {
+        "Dataset": "E72_whitesquad_correlation0.85",
+        "ASR": 0.76,
+        "total": 100,
+        "attack success": 0.76,
+        "injection success": 1.0,
+        "similar success": 0.76
+    },
+    {
+        "Dataset": "E72_blacksquad_correlation0.85",
+        "ASR": 0.76,
+        "total": 100,
+        "attack success": 0.76,
+        "injection success": 0.99,
+        "similar success": 0.76
     }
 ]
