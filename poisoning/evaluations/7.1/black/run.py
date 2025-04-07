@@ -28,7 +28,7 @@ pipe = pipeline(
     model=model,
     tokenizer=tokenizer,
     max_new_tokens=200,
-    do_sample=True,
+    do_sample=False,
     temperature=0.6,
     top_p=0.9,
     return_full_text=False,  # Only return the generated text, not the input
@@ -52,7 +52,7 @@ output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluati
 datasets = {
     "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    "ms_marco": "ms_marco_targeted.json"
+    # "ms_marco": "ms_marco_targeted.json"
 }
 # prompt_injection_patterns = [
 #     'dont_answer_PI_', 

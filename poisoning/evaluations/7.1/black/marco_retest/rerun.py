@@ -97,7 +97,7 @@ if __name__ == '__main__':
                 attacker_response = generate(adv)
                 injection_success = check_inject_success(attacker_response, target_answer)
                 cos_sim = cosine_sim(adv, question)
-                sem_score = semantic_score(question, adv)
+                sem_score = semantic_score(adv, question)
                 euc_dist = euclidean_distance(adv, question)
                 
                 
