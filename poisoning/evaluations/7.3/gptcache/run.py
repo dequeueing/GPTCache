@@ -75,7 +75,8 @@ def inject_noise(target_question:str, correlation, noise_number,  all_noise):
     # selected_noise = [noise_questions[id] for id in selected_ids]
     
     for target_question in all_noise:
-        put(target_question, f"This is a noise question: {target_question}", cache_obj=the_cache)
+        # put(target_question, f"This is a noise question: {target_question}", cache_obj=the_cache)
+        
         
     # Check the questions are in the cache
     vector_db = the_cache.data_manager.v  # Access the FAISS vector store
@@ -93,16 +94,16 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/prompts/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results/'
+prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_new/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/'
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/noise/'
 datasets = {
-    "squad": "squad_targeted.json",
+    # "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    "ms_marco": "ms_marco_targeted.json"
+    # "ms_marco": "ms_marco_targeted.json"
 }
 prompt_injection_patterns = [
-    'white',
+    # 'white',
     'black',
 ]
 
@@ -124,8 +125,11 @@ default = {
 
 if __name__ == '__main__':
     stat_file = output_path + f"E73_gptcache_summary.json"
-    with open(stat_file, 'r') as file:
-        stat = json.load(file)
+    try:
+        with open(stat_file, 'w') as file:
+            stat = json.load(file)
+    except Exception:
+        stat = []
 
     for pattern in prompt_injection_patterns:
         for dataset_id in datasets:
@@ -134,7 +138,7 @@ if __name__ == '__main__':
                     independent_var = value
                     threshold, top_k, noise_number, correlation = get_config(config, independent_var)
                     
-                    prompt_file = prompt_path + f"only_{dataset_id}.json"
+                    prompt_file = prompt_path + f"{dataset_id}.json"
                     noise_file = noise_path + f"filtered_{dataset_id}_noise.json"
                     output_file = output_path + f"E73_gptcache_{pattern}_{dataset_id}.json"
 
@@ -144,7 +148,9 @@ if __name__ == '__main__':
                     with open(prompt_file, 'r') as f:
                         data = json.load(f)
                         
-                    # sample noise 
+                    # sample noise, exclude the target question
+                    target_question = [item['question'] for item in data]
+                    all_noise = [item for item in all_noise if item not in target_question]
                     all_noise = random.sample(all_noise, noise_number)
                     
                     attack_cnt = 0
