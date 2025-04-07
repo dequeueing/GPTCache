@@ -11,6 +11,7 @@ import numpy as np
 from typing import *
 from util import *
 from util import the_cache
+import matplotlib.pyplot as plt
 
 
 def get_cache_size():
@@ -97,6 +98,8 @@ if __name__ == '__main__':
     noise_question = [item['question'] for item in noise]
     noise_id = [item['id'] for item in noise]
     
+    # Change: if not hit, will return the same prompt as itself.
+        
     # inject noise 
     start = time.time()
     selected_noise_id = set()
@@ -112,13 +115,11 @@ if __name__ == '__main__':
         selected_noise_id.add(random_question_id)
         
         # try inject
-        cnt_before = get_cache_size()
-        generate(random_question_str)
-        cnt_after = get_cache_size()
-        if cnt_after == cnt_before + 1:
+        completion = generate(random_question_str)
+        if completion == random_question_str:
             injected_noise_id.add(random_question_id)
             
-        print(f"current cache number: {cnt_after}")
+        print(f"current cache number: {get_cache_size()}")
             
     print(f"injection finished")
     print(f"time taken: {time.time() - start}")
@@ -128,6 +129,7 @@ if __name__ == '__main__':
     # 5000 end user queries
     chosen_end_user_id = set()
     injected_end_user_id = set()  # len of this set is the newly injected into
+    attacker_to_inject = []
     for i in range(0, 5000):
         # select user query, excluded from the chosen ones
         while True:
@@ -135,7 +137,26 @@ if __name__ == '__main__':
             random_question_str = random_question['question']
             random_question_id = random_question['id']
             if random_question_id not in chosen_end_user_id and random_question_id not in selected_noise_id:
+                chosen_end_user_id.add(random_question_id)
                 break
             
-        # inject; how do we know it is injected? We need some change inside the GPTCache
+        # inject
+        response = generate(random_question_str)
+        if response == random_question_str:  # inject success
+            injected_end_user_id.add(random_question_id)
         
+        # record attacker data 
+        attacker_to_inject.append(cache_size - len(injected_end_user_id))
+        
+        # finish eviction
+        if len(injected_end_user_id) == cache_size:
+            break
+        
+    # draw
+    plt.plot(attacker_to_inject)
+    plt.title("Eviction Evaluation")
+    plt.xlabel("Number of user injection")
+    plt.ylabel("Number of attacker injection")
+    plt.grid(True)
+    plt.show()
+    plt.savefig("attacker_to_inject_plot.png")
