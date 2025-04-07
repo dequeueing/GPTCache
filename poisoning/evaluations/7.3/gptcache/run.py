@@ -1,4 +1,5 @@
 import json
+import random
 import shutil
 import os
 import numpy as np
@@ -54,32 +55,32 @@ def setup_cache(threshold, top_k, noise_number):
     
 def inject_noise(target_question:str, correlation, noise_number,  all_noise):
     # Extract noise questions and IDs
-    noise_questions = [noise['question'] for noise in all_noise]
+    # noise_questions = [noise['question'] for noise in all_noise]
 
-    # Compute cosine similarity in batches
-    batch_size = 2048
-    all_similarities = []
+    # # Compute cosine similarity in batches
+    # batch_size = 2048
+    # all_similarities = []
 
-    for i in range(0, len(noise_questions), batch_size):
-        batch_noise_questions = noise_questions[i:i + batch_size]
-        batch_similarities = cosine_sim_batch(batch_noise_questions, [target_question] * len(batch_noise_questions))
+    # for i in range(0, len(noise_questions), batch_size):
+    #     batch_noise_questions = noise_questions[i:i + batch_size]
+    #     batch_similarities = cosine_sim_batch(batch_noise_questions, [target_question] * len(batch_noise_questions))
         
-        # Store computed similarities
-        all_similarities.extend(batch_similarities)
+    #     # Store computed similarities
+    #     all_similarities.extend(batch_similarities)
 
-    # Attach cosine similarity to each noise sample
-    for i, noise in enumerate(all_noise):
-        noise["dist"] = all_similarities[i]
-    selected_ids = get_normal_distribution(dist_mean=correlation, number=noise_number, all_noise=all_noise)
-    selected_noise = [noise_questions[id] for id in selected_ids]
+    # # Attach cosine similarity to each noise sample
+    # for i, noise in enumerate(all_noise):
+    #     noise["dist"] = all_similarities[i]
+    # selected_ids = get_normal_distribution(dist_mean=correlation, number=noise_number, all_noise=all_noise)
+    # selected_noise = [noise_questions[id] for id in selected_ids]
     
-    for target_question in selected_noise:
+    for target_question in all_noise:
         put(target_question, f"This is a noise question: {target_question}", cache_obj=the_cache)
         
     # Check the questions are in the cache
     vector_db = the_cache.data_manager.v  # Access the FAISS vector store
     vector_count = vector_db.count()
-    assert vector_count == len(selected_noise)
+    assert vector_count == len(all_noise)
 
 def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int = 20):
     """Return a subset of noise IDs where cosine similarity follows a normal distribution."""
@@ -93,8 +94,8 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     return [all_noise[i]['id'] for i in selected_indices]
 
 prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/prompts/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results'
-noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/noise'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results/'
+noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/noise/'
 datasets = {
     "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
@@ -134,7 +135,7 @@ if __name__ == '__main__':
                     threshold, top_k, noise_number, correlation = get_config(config, independent_var)
                     
                     prompt_file = prompt_path + f"only_{dataset_id}.json"
-                    noise_file = noise_path + f"filtered_{dataset_id}.json"
+                    noise_file = noise_path + f"filtered_{dataset_id}_noise.json"
                     output_file = output_path + f"E73_gptcache_{pattern}_{dataset_id}.json"
 
                     # load noise and target
@@ -142,7 +143,9 @@ if __name__ == '__main__':
                         all_noise = json.load(file)
                     with open(prompt_file, 'r') as f:
                         data = json.load(f)
-                                       
+                        
+                    # sample noise 
+                    all_noise = random.sample(all_noise, noise_number)
                     
                     attack_cnt = 0
                     injection_cnt = 0

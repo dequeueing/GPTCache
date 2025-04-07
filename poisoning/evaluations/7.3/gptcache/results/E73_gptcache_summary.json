@@ -1,0 +1,50 @@
+[
+    {
+        "Dataset": "E72_whitesquad_thresholds0.8",
+        "ASR": 0.85,
+        "total": 100,
+        "attack success": 0.85,
+        "injection success": 0.91,
+        "similar success": 0.92
+    },
+    {
+        "Dataset": "E72_whiteMedQuad-MedicalQnADataset_thresholds0.8",
+        "ASR": 0.27,
+        "total": 100,
+        "attack success": 0.27,
+        "injection success": 0.99,
+        "similar success": 0.28
+    },
+    {
+        "Dataset": "E72_whitems_marco_thresholds0.8",
+        "ASR": 0.5,
+        "total": 100,
+        "attack success": 0.5,
+        "injection success": 0.83,
+        "similar success": 0.51
+    },
+    {
+        "Dataset": "E72_blacksquad_thresholds0.8",
+        "ASR": 0.82,
+        "total": 100,
+        "attack success": 0.82,
+        "injection success": 0.94,
+        "similar success": 0.88
+    },
+    {
+        "Dataset": "E72_blackMedQuad-MedicalQnADataset_thresholds0.8",
+        "ASR": 0.44,
+        "total": 100,
+        "attack success": 0.44,
+        "injection success": 0.96,
+        "similar success": 0.46
+    },
+    {
+        "Dataset": "E72_blackms_marco_thresholds0.8",
+        "ASR": 0.52,
+        "total": 100,
+        "attack success": 0.52,
+        "injection success": 0.95,
+        "similar success": 0.55
+    }
+]
