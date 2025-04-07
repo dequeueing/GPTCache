@@ -537,7 +537,8 @@ def sem_get_logits(
     )
 
     # Prepare batch of attacker queries
-    attacker_queries = [attacker_base + embedding_suffix + suffix for suffix in test_controls]
+    # attacker_queries = [attacker_base + embedding_suffix + suffix for suffix in test_controls]
+    attacker_queries = [suffix + attacker_base for suffix in test_controls]
     victim_queries = [victim_query] * len(test_controls)  # Repeat victim_query for each test_control
 
     # Batch prediction

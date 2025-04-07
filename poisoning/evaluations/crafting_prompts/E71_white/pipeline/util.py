@@ -115,8 +115,8 @@ def find_embedding_suffix_indices(attacker: str, embedding_suffix: str, semantic
     emb_len = len(emb_suffix_ids)
     base_len = len(base_ids)
     
-    start1 = base_len + 1 
-    end1 = base_len + 1 + emb_len
+    start1 = 0
+    end1 = emb_len
     return start1, end1
 
 
@@ -365,7 +365,8 @@ def emb_get_logits(
     )
 
     # Combine attacker_base with each test_control and suffix_semantic
-    new_attacker_queries = [attacker_base + ctrl + suffix_semantic for ctrl in test_controls]
+    # new_attacker_queries = [attacker_base + ctrl + suffix_semantic for ctrl in test_controls]
+    new_attacker_queries = [ctrl + attacker_base for ctrl in test_controls]
     
     # Get embeddings for all attacker queries in a batch and move to CUDA
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
