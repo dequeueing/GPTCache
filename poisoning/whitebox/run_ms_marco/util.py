@@ -19,7 +19,7 @@ def set_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',  # Optional: to include timestamps and log levels
-        filename='marco_embedding.log',  # Specify the file where logs should be saved
+        filename='ms_marco_embedding.log',  # Specify the file where logs should be saved
         filemode='w'  # 'a'  append, 'w' overwrite
     )
     

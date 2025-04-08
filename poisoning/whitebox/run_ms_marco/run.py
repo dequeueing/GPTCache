@@ -111,9 +111,9 @@ def generate(prompt):
 input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/whitebox/prompts_black/'
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/whitebox/prompts_white/'
 datasets = [
-    "squad",
+    # "squad",
     # "MedQuad-MedicalQnADataset",
-    # "ms_marco"
+    "ms_marco"
 ]
 
 

@@ -19,7 +19,7 @@ def set_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',  # Optional: to include timestamps and log levels
-        filename='marco_embedding.log',  # Specify the file where logs should be saved
+        filename='click.log',  # Specify the file where logs should be saved
         filemode='w'  # 'a'  append, 'w' overwrite
     )
     
@@ -115,8 +115,8 @@ def find_embedding_suffix_indices(attacker: str, embedding_suffix: str, semantic
     emb_len = len(emb_suffix_ids)
     base_len = len(base_ids)
     
-    start1 = 0
-    end1 = emb_len
+    start1 = base_len + 1 
+    end1 = base_len + 1 + emb_len
     return start1, end1
 
 
@@ -365,8 +365,7 @@ def emb_get_logits(
     )
 
     # Combine attacker_base with each test_control and suffix_semantic
-    # new_attacker_queries = [attacker_base + ctrl + suffix_semantic for ctrl in test_controls]
-    new_attacker_queries = [ctrl + attacker_base for ctrl in test_controls]
+    new_attacker_queries = [attacker_base + ctrl + suffix_semantic for ctrl in test_controls]
     
     # Get embeddings for all attacker queries in a batch and move to CUDA
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -538,7 +537,8 @@ def sem_get_logits(
     )
 
     # Prepare batch of attacker queries
-    attacker_queries = [attacker_base + embedding_suffix + suffix for suffix in test_controls]
+    # attacker_queries = [attacker_base + embedding_suffix + suffix for suffix in test_controls]
+    attacker_queries = [attacker_base + suffix for suffix in test_controls]
     victim_queries = [victim_query] * len(test_controls)  # Repeat victim_query for each test_control
 
     # Batch prediction
