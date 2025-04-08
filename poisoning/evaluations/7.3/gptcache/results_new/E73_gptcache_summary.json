@@ -22,5 +22,13 @@
         "attack success": 0.7,
         "injection success": 0.89,
         "similar success": 0.8
+    },
+    {
+        "Dataset": "E72_blackMedQuad-MedicalQnADataset_thresholds0.8",
+        "ASR": 0.47,
+        "total": 100,
+        "attack success": 0.47,
+        "injection success": 0.99,
+        "similar success": 0.48
     }
 ]
