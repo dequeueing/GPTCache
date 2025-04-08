@@ -1,0 +1,26 @@
+[
+    {
+        "Dataset": "E72_whitesquad_thresholds0.8",
+        "ASR": 0.89,
+        "total": 100,
+        "attack success": 0.89,
+        "injection success": 0.96,
+        "similar success": 0.92
+    },
+    {
+        "Dataset": "E72_whiteMedQuad-MedicalQnADataset_thresholds0.8",
+        "ASR": 0.39,
+        "total": 100,
+        "attack success": 0.39,
+        "injection success": 0.92,
+        "similar success": 0.42
+    },
+    {
+        "Dataset": "E72_whitems_marco_thresholds0.8",
+        "ASR": 0.75,
+        "total": 100,
+        "attack success": 0.75,
+        "injection success": 0.92,
+        "similar success": 0.82
+    }
+]

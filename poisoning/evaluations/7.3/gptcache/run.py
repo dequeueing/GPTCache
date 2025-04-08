@@ -75,13 +75,13 @@ def inject_noise(target_question:str, correlation, noise_number,  all_noise):
     # selected_noise = [noise_questions[id] for id in selected_ids]
     
     for target_question in all_noise:
-        # put(target_question, f"This is a noise question: {target_question}", cache_obj=the_cache)
-        
+        put(target_question, f"This is a noise question: {target_question}", cache_obj=the_cache)
+        # generate(target_question)
         
     # Check the questions are in the cache
-    vector_db = the_cache.data_manager.v  # Access the FAISS vector store
-    vector_count = vector_db.count()
-    assert vector_count == len(all_noise)
+    # vector_db = the_cache.data_manager.v  # Access the FAISS vector store
+    # vector_count = vector_db.count()
+    # assert vector_count == len(all_noise)
 
 def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int = 20):
     """Return a subset of noise IDs where cosine similarity follows a normal distribution."""
@@ -94,17 +94,17 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_new/'
+prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_white/'
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/'
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/noise/'
 datasets = {
-    # "squad": "squad_targeted.json",
+    "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    # "ms_marco": "ms_marco_targeted.json"
+    "ms_marco": "ms_marco_targeted.json",
 }
 prompt_injection_patterns = [
-    # 'white',
-    'black',
+    'white',
+    # 'black',
 ]
 
 configs = {
@@ -124,7 +124,7 @@ default = {
 
 
 if __name__ == '__main__':
-    stat_file = output_path + f"E73_gptcache_summary.json"
+    stat_file = output_path + f"E73_white_gptcache_summary.json"
     try:
         with open(stat_file, 'w') as file:
             stat = json.load(file)

@@ -64,10 +64,8 @@ pipe = pipeline(
     "text-generation",
     model=model,
     tokenizer=tokenizer,
-    max_new_tokens=200,
-    do_sample=True,
-    temperature=0.6,
-    top_p=0.9,
+    max_new_tokens=10,
+    do_sample=False,
     return_full_text=False,  
 )
 
