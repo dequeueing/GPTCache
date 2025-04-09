@@ -24,5 +24,5 @@ if __name__ == '__main__':
         all.extend(data)
         
     result_file = f"{result_path}all.json"
-    with open(result_file, 'a') as file:
+    with open(result_file, 'w') as file:
         json.dump(all, file, indent=4)

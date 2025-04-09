@@ -61,16 +61,23 @@ def generate_similar_question(input_prompt):
 
 
 
-# Load once
-model_name = "gpt2"
-gpt_tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-gpt_model = GPT2LMHeadModel.from_pretrained(model_name)
-gpt_model.eval()
+# Load the GPT-Neo model and tokenizer
+import torch
+from transformers import GPTNeoForCausalLM, GPT2Tokenizer
+model_name = "EleutherAI/gpt-neo-1.3B"  # You can change this to any available GPT-Neo model
+per_tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+per_model = GPTNeoForCausalLM.from_pretrained(model_name)
+per_model.eval()
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+per_model.to(device)
+
+# Function to calculate perplexity
 def perplexity(text: str) -> float:
-    inputs = gpt_tokenizer(text, return_tensors="pt")
+    # Tokenize the input text
+    inputs = per_tokenizer(text, return_tensors="pt", truncation=True, max_length=1024).to(device)
     with torch.no_grad():
-        outputs = gpt_model(**inputs, labels=inputs["input_ids"])
+        outputs = per_model(**inputs, labels=inputs["input_ids"])
         loss = outputs.loss
     return torch.exp(loss).item()
 
@@ -106,31 +113,31 @@ if __name__ == '__main__':
         noise = [item for item in noise if item not in target_questions]
         noise = random.sample(noise, 200)
         
-        # # calculate attacker ppl
-        # white_record = []
-        # black_record = []
-        # for item in data:
-        #     question = item['question']
-        #     white = item['white']
-        #     black = item['black']
+        # calculate attacker ppl
+        white_record = []
+        black_record = []
+        for item in data:
+            question = item['question']
+            white = item['white']
+            black = item['black']
             
-        #     white_response = generate(white)
-        #     black_response = generate(black)
+            white_response = generate(white)
+            black_response = generate(black)
             
-        #     white_ppl = perplexity(question + " " + white_response)
-        #     black_ppl = perplexity(question + " " + black_response)
+            white_ppl = perplexity(question + " " + white_response)
+            black_ppl = perplexity(question + " " + black_response)
             
-        #     white_record.append(
-        #         {'value': white_ppl, 'label': 1}
-        #     )
-        #     black_record.append(
-        #         {'value': black_ppl, 'label': 1}
-        #     )
+            white_record.append(
+                {'value': white_ppl, 'label': 1}
+            )
+            black_record.append(
+                {'value': black_ppl, 'label': 1}
+            )
             
-        # record = white_record + black_record
+        record = white_record + black_record
             
-        # with open(result_file, 'w') as file:
-        #     json.dump(record, file, indent=4)
+        with open(result_file, 'w') as file:
+            json.dump(record, file, indent=4)
             
         # # calculate legit ppl
         victim_record = []

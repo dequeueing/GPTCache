@@ -110,20 +110,26 @@ result_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluati
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/defense/noise/'
 
 
-# Load once
+# Load the GPT-Neo model and tokenizer
 import torch
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
-model_name = "gpt2"
-gpt_tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-gpt_model = GPT2LMHeadModel.from_pretrained(model_name)
-gpt_model.eval()
+from transformers import GPTNeoForCausalLM, GPT2Tokenizer
+model_name = "EleutherAI/gpt-neo-1.3B"  # You can change this to any available GPT-Neo model
+tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+model = GPTNeoForCausalLM.from_pretrained(model_name)
+model.eval()
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+# Function to calculate perplexity
 def perplexity(text: str) -> float:
-    inputs = gpt_tokenizer(text, return_tensors="pt")
+    # Tokenize the input text
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=1024).to(device)
     with torch.no_grad():
-        outputs = gpt_model(**inputs, labels=inputs["input_ids"])
+        outputs = model(**inputs, labels=inputs["input_ids"])
         loss = outputs.loss
     return torch.exp(loss).item()
+
 
 # load completion
 from datasets import load_dataset
@@ -186,6 +192,7 @@ if __name__ == '__main__':
                 elapsed = time.time() - start
                 times.append(elapsed)
             except Exception:
+                print("skip")
                 continue
         
         # Calculate stats

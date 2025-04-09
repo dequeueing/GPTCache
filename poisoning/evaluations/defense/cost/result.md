@@ -33,21 +33,19 @@ Total questions: 10047
 # Perplexity
 
 Dataset: squad
-Min time: 0.0134s
-Max time: 0.3073s
-Avg time: 0.0572s
-Total questions: 10473
-100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 16407/16407 [12:55<00:00, 21.15it/s]
+Min time: 0.0127s
+Max time: 0.3788s
+Avg time: 0.0420s
+Total questions: 10570
 
 Dataset: MedQuad-MedicalQnADataset
-Min time: 0.0113s
-Max time: 0.5314s
-Avg time: 0.0476s
-Total questions: 16240
-100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10047/10047 [07:46<00:00, 21.52it/s]
+Min time: 0.0242s
+Max time: 0.2930s
+Avg time: 0.0817s
+Total questions: 16407
 
 Dataset: ms_marco
-Min time: 0.0109s
-Max time: 0.2809s
-Avg time: 0.0467s
-Total questions: 9959
+Min time: 0.0198s
+Max time: 0.2881s
+Avg time: 0.0806s
+Total questions: 10047
