@@ -17,10 +17,12 @@ def generate(prompt):
     return image
 
 files = [
-    "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white.json",
+    # "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white.json",
+    '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/click.json'
     # "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_questions.json"
 ]
-output_path = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/prompt-{model_ids[model_id]}/"
+# output_path = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/prompt-{model_ids[model_id]}/"
+output_path = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/new-white-stable-diffusion-3.5-large/"
 
 if __name__ == '__main__':
     random.seed(42)
@@ -30,7 +32,7 @@ if __name__ == '__main__':
             
         record = {}
         for index, item in enumerate(data):
-            prompt = item['prompt']
+            prompt = item['white']
             # prompt = item['prompt']
             print(prompt)
             image = generate(prompt)

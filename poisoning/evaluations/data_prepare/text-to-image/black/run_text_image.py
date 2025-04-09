@@ -124,6 +124,9 @@ output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluati
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/noise_id/'
 
 if __name__ == '__main__':
+    import random
+    random.seed(42)
+    
     stat_file = output_path + f"text_to_image_summary.json"
     with open(stat_file, 'r') as file:
         stat = json.load(file)
@@ -135,10 +138,9 @@ if __name__ == '__main__':
                     independent_var = value
                     threshold, top_k, noise_number, correlation = get_config(config, independent_var)
                     
-                    # prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_answer.json"
-                    prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/target_with_white_fix.json"
-                    noise_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets_raw/noise.json"
-                    output_file = output_path + f"E73_fixed_prompt_{pattern}_{dataset_id}_{config}{independent_var}.json"
+                    prompt_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets/click.json"
+                    noise_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/datasets_raw/all_noise.json"
+                    output_file = output_path + f"E73_final_prompt_{pattern}_{dataset_id}_{config}{independent_var}.json"
 
                     # load noise and target
                     with open(noise_file, 'r') as file:
@@ -152,9 +154,18 @@ if __name__ == '__main__':
                     similar_cnt = 0
                     total = len(data)
 
-                    # Change: since each target question will have a noise set, 
-                    #   we have to inject the noise every time.
-                                        
+                    
+                    # TODO: exclude the noise. 
+                    all_noise = random.sample(all_noise, noise_number + 1000)
+                    target_question = [item['question'] for item in data]
+                    all_noise = [item for item in all_noise if item not in target_question]
+                    for noise in all_noise:
+                        for target in target_question:
+                            assert noise != target
+                    print(f"Target excluded from noise")        
+                    all_noise = random.sample(all_noise, noise_number)
+                    
+                                                            
                     for item in data:
                         if 'attack success' in item:
                             continue
@@ -164,11 +175,11 @@ if __name__ == '__main__':
                         attack_success = False
                         similar_enough = False
                         
-                        question = item['prompt']
+                        question = item['question']
                         if pattern == 'white':
                             adv = item['white']
                         else:
-                            adv = item['adv']
+                            adv = item['black']
                         
 
                         setup_cache(threshold, top_k, noise_number)
