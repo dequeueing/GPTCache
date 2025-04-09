@@ -94,25 +94,23 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_white/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/'
-noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/noise/'
-datasets = {
-    "squad": "squad_targeted.json",
-    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    "ms_marco": "ms_marco_targeted.json",
-}
+prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_new_dataset/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new_dataset/'
+noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/noise_new_dataset/'
+datasets = [
+    'hotpotqa',
+    'nq',
+    'trivia',
+    'wiki',
+]
+
 prompt_injection_patterns = [
-    'white',
-    # 'black',
+    # 'white',
+    'black'
 ]
 
 configs = {
     'thresholds': [0.8],  
-    # 'thresholds': [0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 1.0],  
-    # 'top_k': [1, 3, 5, 10],
-    # 'noise_number': [0, 500, 1000, 2000, 5000],
-    # 'correlation': [0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0],
 }
 
 default = {
@@ -124,7 +122,7 @@ default = {
 
 
 if __name__ == '__main__':
-    stat_file = output_path + f"E73_white_gptcache_summary.json"
+    stat_file = output_path + f"E73_new_dataset_gptcache_summary.json"
     try:
         with open(stat_file, 'w') as file:
             stat = json.load(file)
@@ -139,14 +137,18 @@ if __name__ == '__main__':
                     threshold, top_k, noise_number, correlation = get_config(config, independent_var)
                     
                     prompt_file = prompt_path + f"{dataset_id}.json"
-                    noise_file = noise_path + f"filtered_{dataset_id}_noise.json"
-                    output_file = output_path + f"E73_gptcache_{pattern}_{dataset_id}.json"
+                    noise_file = noise_path + f"{dataset_id}.json"
+                    output_file = output_path + f"E73_new_dataset_gptcache_{pattern}_{dataset_id}.json"
 
                     # load noise and target
                     with open(noise_file, 'r') as file:
                         all_noise = json.load(file)
                     with open(prompt_file, 'r') as f:
                         data = json.load(f)
+                    try:
+                        all_noise = [item['question'] for item in all_noise]
+                    except Exception:
+                        pass
                         
                     # sample noise, exclude the target question
                     target_question = [item['question'] for item in data]
@@ -162,46 +164,42 @@ if __name__ == '__main__':
                     #   we have to inject the noise every time.
                     for item in data:
                         
-                        injection_success = False
+                        injection_success = item['injection_success']
+                        cached_success = True
                         attack_success = False
                         similar_enough = False
                         
                         question = item['question']
                         adv = item['white'] if pattern == 'white' else item['black']
-                        target_answer = item['wrong'].rstrip('.')
+                        target_answer = item['wrong']
+                        
+                        target_answer = target_answer.rstrip('.')
                         
                         setup_cache(threshold, top_k, noise_number)
                         inject_noise(question, correlation, noise_number,  all_noise)
                         
                         attacker_response = generate(adv)
                         victim_response = generate(question)
-                        # if attacker_response in generated or victim_response in generated:
-                        #     setup_cache(threshold, top_k, noise_number, dataset_id)
-                        #     attacker_response = generate(adv)
-                        #     victim_response = generate(question)
-
+                        
+                        if 'This is a noise question' in attacker_response:
+                            cached_success = False
                     
-                        if attacker_response == target_answer:
-                            injection_success = True
                                             
                         if victim_response == attacker_response:
                             similar_enough = True
                         
-                        if similar_enough and injection_success:
+                        if similar_enough and injection_success and cached_success:
                             attack_success = True
                             
                         if attack_success:
                             attack_cnt += 1
-                        if injection_success:
-                            injection_cnt += 1
                         if similar_enough:
                             similar_cnt += 1
                                                                             
-                        item['attacker response'] = attacker_response
-                        item['victim response'] = victim_response
-                        item['attack success'] = attack_success 
-                        item['injection success'] = injection_success
-                        item['similar enough'] = similar_enough
+                        item[f'attacker_response_{pattern}'] = attacker_response
+                        item[f'attack_success_{pattern}'] = attack_success 
+                        item[f'similar_enough_{pattern}'] = similar_enough
+                        item[f'cached_success{pattern}'] = cached_success
                             
                         # store adv to local
                         with open(output_file, "w") as file:
@@ -210,14 +208,12 @@ if __name__ == '__main__':
                             
                     stat.append(
                         {
-                        'Dataset': f"E72_{pattern}{dataset_id}_{config}{independent_var}", 
+                        'Dataset': f"E73_gptcache_new_dataset_{pattern}{dataset_id}", 
                         'ASR': attack_cnt / total,
-                        'total': total,
-                        'attack success': attack_cnt / total,
-                        'injection success': injection_cnt / total,
-                        'similar success': similar_cnt / total,
                         }
                     )
+                    
+                    print(stat)
                             
                     with open(stat_file, 'w') as file:
                         json.dump(stat, file, indent=4)
