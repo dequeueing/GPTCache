@@ -72,12 +72,19 @@ def sample(similarities):
     return sampled_sim
 
 
-datasets = {
-    # "squad": "squad_targeted.json",
-    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    # "ms_marco": "ms_marco_targeted.json",
-    "text-image": "ms_marco_targeted.json",
-}
+# datasets = {
+#     # "squad": "squad_targeted.json",
+#     # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+#     # "ms_marco": "ms_marco_targeted.json",
+#     "text-image": "ms_marco_targeted.json",
+# }
+
+datasets = [
+    'hotpotqa',
+    'nq',
+    'trivia',
+    'wiki',
+]
 
 # Main execution
 if __name__ == '__main__':
@@ -93,7 +100,11 @@ if __name__ == '__main__':
         with open(input_file, 'r') as file:
             all_noise = json.load(file)
 
-        questions = all_noise
+        try:
+            questions = [item['question'] for item in all_noise]
+        except Exception:
+            questions = all_noise
+            
         print(f"Total questions: {len(questions)}")
 
         # Precompute embeddings
@@ -103,8 +114,8 @@ if __name__ == '__main__':
         plot_similarity_distribution(similarities, output_path, dataset_id)
         print(f"Plots saved to {output_path}{dataset_id}_distribution.png")
         
-        samples = sample(similarities)        
-        with open(data_file, 'w') as f:
-            json.dump(samples, f, indent=2)
+        # samples = sample(similarities)        
+        # with open(data_file, 'w') as f:
+        #     json.dump(samples, f, indent=2)
 
 
