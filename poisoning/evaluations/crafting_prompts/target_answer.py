@@ -23,12 +23,13 @@ pipe = pipeline(
 )
 
 # Datasets and their JSON files
-dir_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/jsons/'
-datasets = {
-    "squad": "squad_targeted.json",
-    "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-    "ms_marco": "ms_marco_targeted.json"
-}
+dir_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/target_new/'
+datasets = [
+    'hotpotqa',
+    'nq',
+    'trivia',
+    'wiki',
+]
 
 # Function to generate wrong answers using pipeline
 def generate_wrong_answers_batch(questions, correct_answers):
@@ -36,7 +37,7 @@ def generate_wrong_answers_batch(questions, correct_answers):
     prompts = [
         tokenizer.apply_chat_template(
             [
-                {"role": "system", "content": "You are a helpful assistant designed to provide incorrect yet plausible answers to the target question. YOUR RESPONSES ARE LIMITED TO ONE WORD. Only the incorrect answer should be provided, without additional explanation or commentary, while remaining believable despite being factually wrong."},
+                {"role": "system", "content": "You are a helpful assistant designed to provide incorrect answers to the target question. YOUR RESPONSES SHOULD BE CONCISE, LIMITED TO LESS THAN FIVE WORDS. Only the incorrect answer should be provided, without additional explanation or commentary, while remaining believable despite being factually wrong."},
                 {"role": "user", "content": f"Given the target question: '{q}' and its correct answer: '{a}', generate an incorrect but plausible answer."}
             ],
             tokenize=False,
@@ -46,39 +47,37 @@ def generate_wrong_answers_batch(questions, correct_answers):
     
     # Batch inference with pipeline
     wrong_answers = pipe(prompts, batch_size=len(prompts))
-    
-    print(wrong_answers)
-    
+        
     # Extract generated text
     return [answer[0]['generated_text'].strip() for answer in wrong_answers]
 
 if __name__ == "__main__":
-    for dataset_name, json_file in datasets.items():
-        print(f"Processing {dataset_name}...")
-        json_file = dir_path + json_file
+    for datasetid in datasets:
+        print(f"Processing {datasetid}...")
+        json_file = dir_path + datasetid + ".json"
         
         # Load JSON file
         with open(json_file, "r") as file:
             data = json.load(file)
         
-        poisoned_results = {}
         
-        # Process each round
-        for round_name, qa_pairs in data.items():
-            questions, correct_answers = zip(*qa_pairs)
-            questions, correct_answers = list(questions), list(correct_answers)
+        questions = [item['question'] for item in data]
+        try:
+            correct_answers = [item['correct'] for item in data]
+        except Exception:
+            correct_answers = ["" for _ in data]
             
-            # Generate wrong answers
-            wrong_answers = generate_wrong_answers_batch(questions, correct_answers)
-            
-            # Pair questions with wrong answers
-            poisoned_results[round_name] = [(q, w) for q, w in zip(questions, wrong_answers)]
+        # Generate wrong answers
+        wrong_answers = generate_wrong_answers_batch(questions, correct_answers)
         
-            # Save results
-            # poisoned_file = f"poisoned_{dataset_name}.json"
-            output_file = f'/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/crafting_prompts/redemption/short_{dataset_name}.json'
-            with open(output_file, "w") as file:
-                json.dump(poisoned_results, file, indent=4)
-                print(f"Poisoned results saved to {output_file}")
+        for item, wrong in zip(data, wrong_answers):
+            item['wrong'] = wrong
+        
+    
+        # Save results
+        # poisoned_file = f"poisoned_{dataset_name}.json"
+        with open(json_file, "w") as file:
+            json.dump(data, file, indent=4)
+        print(f"Poisoned results saved to {json_file}")
 
     print("All datasets processed!")
