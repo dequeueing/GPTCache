@@ -86,8 +86,31 @@ datasets = [
     'wiki',
 ]
 
+def sample_target():
+    input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/all_noise/'
+    output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/plots/'
+    data_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/target/'
+    
+    for dataset_id in datasets:
+        input_file = input_path + f"{dataset_id}.json"
+        target_file = data_path + f"{dataset_id}.json"
+
+        with open(input_file, 'r') as file:
+            all_noise = json.load(file)
+            
+        import random
+        target = random.sample(all_noise, 100)
+        
+        with open(target_file, 'w') as f:
+            json.dump(target, f, indent=2)
+
+
+        
+
+
 # Main execution
 if __name__ == '__main__':
+    # sample_target()
     input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/all_noise/'
     output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/plots/'
     data_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/'
