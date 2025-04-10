@@ -38,33 +38,65 @@ def compute_all_similarities(embeddings):
     similarities = sim_matrix[triu_indices[0], triu_indices[1]].cpu().numpy()
     return similarities
 
+
+
 # Optimized plotting function with dataset name
 def plot_similarity_distribution(similarities, output_path, dataset_id):
     sample_size = min(1000000, len(similarities))
     sampled_sim = np.random.choice(similarities, sample_size, replace=False)
 
+    # Plot configuration
+    plt.style.use('ggplot')
     plt.figure(figsize=(12, 5))
 
     # Histogram
     plt.subplot(1, 2, 1)
     hist, bins = np.histogram(sampled_sim, bins=50, density=True)
     plt.bar(bins[:-1], hist, width=np.diff(bins), color='blue', alpha=0.7)
-    plt.title(f'Similarity Distribution - {dataset_id}')
-    plt.xlabel('Cosine Similarity')
-    plt.ylabel('Density')
+    plt.xlabel("Cosine Similarity", fontsize=16, fontweight='bold')
+    plt.ylabel("Density", fontsize=16, fontweight='bold')
+    plt.xticks(fontsize=14, fontweight='bold')
+    plt.yticks(fontsize=14, fontweight='bold')
+    plt.grid(True)
 
     # CDF
     plt.subplot(1, 2, 2)
     sorted_sim = np.sort(sampled_sim)
     cdf = np.arange(1, len(sorted_sim) + 1) / len(sorted_sim)
-    plt.plot(sorted_sim, cdf, color='green')
-    plt.title(f'Cumulative Distribution Function - {dataset_id}')
-    plt.xlabel('Cosine Similarity')
-    plt.ylabel('Cumulative Probability')
+    plt.plot(sorted_sim, cdf, color='green', linewidth=3)
+    plt.xlabel("Cosine Similarity", fontsize=16, fontweight='bold')
+    plt.ylabel("Cumulative Probability", fontsize=16, fontweight='bold')
+    plt.xticks(fontsize=14, fontweight='bold')
+    plt.yticks(fontsize=14, fontweight='bold')
+    plt.grid(True)
 
     plt.tight_layout()
-    plt.savefig(f'{output_path}{dataset_id}_distribution.png')
+    plt.savefig(f'{output_path}{dataset_id}_distribution.png', format='png')
     plt.close()
+    
+# Optimized plotting function with dataset name
+def plot_similarity_distribution_no_sample(similarities, output_path, dataset_id):
+    sampled_sim = similarities
+
+    # Plot configuration
+    plt.style.use('ggplot')
+
+    # Histogram
+    hist, bins = np.histogram(sampled_sim, bins=50, density=True)
+    bin_widths = np.diff(bins)
+    proportions = hist * bin_widths  # scale density to get proportion per bin
+    plt.bar(bins[:-1], proportions, width=bin_widths, color='#457B9D', edgecolor='white')
+    plt.xlabel("Cosine Similarity", fontsize=16, fontweight='bold')
+    plt.ylabel("Proportion", fontsize=16, fontweight='bold')
+    plt.xticks(fontsize=14, fontweight='bold')
+    plt.yticks(fontsize=14, fontweight='bold')
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.savefig(f'{output_path}{dataset_id}_distribution.png', format='png')
+    plt.close()
+    
+        
     
 def sample(similarities):
     sample_size = min(1000000, len(similarities))
@@ -72,19 +104,19 @@ def sample(similarities):
     return sampled_sim
 
 
-# datasets = {
-#     # "squad": "squad_targeted.json",
-#     # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
-#     # "ms_marco": "ms_marco_targeted.json",
-#     "text-image": "ms_marco_targeted.json",
-# }
+datasets = {
+    # "squad": "squad_targeted.json",
+    # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
+    # "ms_marco": "ms_marco_targeted.json",
+    "text-image": "ms_marco_targeted.json",
+}
 
-datasets = [
-    'hotpotqa',
-    'nq',
-    'trivia',
-    'wiki',
-]
+# datasets = [
+#     'hotpotqa',
+#     'nq',
+#     'trivia',
+#     'wiki',
+# ]
 
 def sample_target():
     input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/all_noise/'
@@ -113,32 +145,39 @@ if __name__ == '__main__':
     # sample_target()
     input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/all_noise/'
     output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/plots/'
-    data_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/'
+    data_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/dataset_distr/data/'
     
     data = []
     for dataset_id in datasets:
-        input_file = input_path + f"{dataset_id}.json"
-        data_file = data_path + f"{dataset_id}_data.json"
+        # input_file = input_path + f"{dataset_id}.json"
+        # data_file = data_path + f"{dataset_id}_data.json"
 
-        with open(input_file, 'r') as file:
-            all_noise = json.load(file)
+        # with open(input_file, 'r') as file:
+        #     all_noise = json.load(file)
 
-        try:
-            questions = [item['question'] for item in all_noise]
-        except Exception:
-            questions = all_noise
+        # try:
+        #     questions = [item['question'] for item in all_noise]
+        # except Exception:
+        #     questions = all_noise
             
-        print(f"Total questions: {len(questions)}")
+        # print(f"Total questions: {len(questions)}")
 
-        # Precompute embeddings
-        embeddings = get_all_embeddings(questions, batch_size=2048)
-        similarities = compute_all_similarities(embeddings)
+        # # Precompute embeddings
+        # embeddings = get_all_embeddings(questions, batch_size=2048)
+        # similarities = compute_all_similarities(embeddings)
         
-        plot_similarity_distribution(similarities, output_path, dataset_id)
-        print(f"Plots saved to {output_path}{dataset_id}_distribution.png")
+        # plot_similarity_distribution(similarities, output_path, dataset_id)
+        # print(f"Plots saved to {output_path}{dataset_id}_distribution.png")
         
         # samples = sample(similarities)        
         # with open(data_file, 'w') as f:
         #     json.dump(samples, f, indent=2)
+        
+        data_file = data_path + f"{dataset_id}_data.json"
+        with open(data_file, 'r') as file:
+            data = json.load(file)
+            
+        plot_similarity_distribution_no_sample(data, output_path, dataset_id)
+
 
 

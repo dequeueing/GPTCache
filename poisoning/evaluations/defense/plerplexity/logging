@@ -1,0 +1,606 @@
+Loading checkpoint shards: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:06<00:00,  1.61s/it]
+Device set to use cuda:0
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+/home/taojie_wang@idm.teecertlabs.com/miniconda3/envs/gptcache/lib/python3.10/site-packages/bitsandbytes/nn/modules.py:451: UserWarning: Input type into Linear4bit is torch.float16, but bnb_4bit_compute_dtype=torch.float32 (default). This will lead to slow inference or training speed.
+  warnings.warn(
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+`loss_type=None` was set in the config but it is unrecognised.Using the default loss: `ForCausalLMLoss`.
+
+original question: Which British sculptor whose work include the Queen Victoria memorial in front of Buckingham Palace is included in the V&A collection?
+similar question: Which artist, known for creating the Queen Victoria memorial in front of Buckingham Palace, is also a part of the V&A's collection?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who did BSkyB team up with because it was not part of the consortium?
+similar question: Which company did BSkyB partner with, given that it wasn't a member of the consortium?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What were Tyneside flats built as?
+similar question: What were Tyneside homes originally constructed as?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+You seem to be using the pipelines sequentially on GPU. In order to maximize efficiency please use a dataset
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Which university has its origins in a school dealing with medicine and surgery?
+similar question: Which institution has its roots in a facility focused on medical education and treatment?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When was the Muslim Brotherhood founded?
+similar question: In what year was the Muslim Brotherhood established?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is Victoria's highest monthly temperature?
+similar question: What is the peak monthly temperature in Victoria?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who did the Broncos beat to win their division in 2015?
+similar question: What team did the Broncos defeat to secure their division title in 2015?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What was the name of the locomotive that debuted in 1808?
+similar question: What locomotive was first introduced in 1808?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What graphic designer designed the ABC logo in it's most known form?
+similar question: Who is credited with creating the iconic design of the ABC logo?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How many teams has Manning played for that reached the Super Bowl, while he was on their team?
+similar question: In what franchises did Manning play that went on to appear in the Super Bowl while he was a member?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How long does it take to get to the middle of Newcastle from its outskirts when riding the rails?
+similar question: What is the approximate travel time from the outskirts to the central area of Newcastle when taking a train?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Southern California had a population of 22,680,010 according to the census from which year?
+similar question: What year did the census reveal a population of 22,680,010 in Southern California?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What was the name of the Media Day event for Super Bowl 50?
+similar question: What was the title of the pre-Super Bowl event held on Media Day for Super Bowl 50?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When was the cabinet-level Energy Department created?
+similar question: When was the Energy Department established at the cabinet level?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How do cestids swim?
+similar question: What is the locomotion method of the moth family?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: The Rhine gets how much water from the Aare?
+similar question: How much water does the Rhine receive from the Aare?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When are subject committees established?
+similar question: In what situations are subject committees typically formed?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How was it suggested that the IPCC avoid political problems?
+similar question: What steps were taken by the IPCC to prevent political involvement?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What percentage of Warsaw's population was Protestant in 1901?
+similar question: What proportion of Warsaw's inhabitants identified as Protestant in the year 1901?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How many days did the Warsaw Uprising last?
+similar question: For how long did the Warsaw Uprising endure?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Which rival's tribes did Genghis Khan famously measure against the linchpin?
+similar question: What tribes did Genghis Khan famously compare to the linchpin of his conquests?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What are weak and electromatic forces expressions of?
+similar question: What are the fundamental manifestations of weak and electromagnetic forces?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How much heavier is oxygen 18 than oxygen 16?
+similar question: What is the mass difference between oxygen-18 and oxygen-16?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Under which policy are labor unions encouraged?
+similar question: In which legislation are workers' organizations supported?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How many points did the Broncos score in the last three minutes of the game versus Pittsburgh?
+similar question: What was the total number of points scored by the Broncos in the final three minutes of their game against Pittsburgh?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: At what degree are the pistons of a two-cylinder compound connected to the cranks?
+similar question: What angle do the pistons of a two-cylinder compound engine make with the crankshaft?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is the term for the highest living saint?
+similar question: What is the title given to the most revered and exalted saint?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who would generally teach from a work like the Quran, Torah or Bible?
+similar question: What kind of individuals typically interpret and instruct from texts such as the Quran, Torah, or Bible?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What has recently undergone extensive restoration?
+similar question: What has been subjected to a comprehensive renovation project?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What are members who have been baptized as an infant or child but who have not subsequently professed their own faith?
+similar question: What are individuals baptized as children who have not yet made a personal commitment to their faith?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What directions the local church to offer membership preparation to all people?
+similar question: What kinds of programs does the local church provide to help people prepare for membership?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How many men did Duquesne send to relieve  Saint-Pierre ?
+similar question: How many males did Duquesne dispatch to assist Saint-Pierre?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Besides combustion, for what other action did Mayow show nitroaereus responsible?
+similar question: What action, aside from combustion, did Mayow attribute to the effects of nitroaereus?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What were the three parts of Kublai's government?
+similar question: What were the primary components of Kublai's administrative structure?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What does political pressure push to extend to compensate for stagnating purchasing power?
+similar question: What are the economic factors that prompt governments to expand their monetary policies to counteract declining consumer purchasing power?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What does the CPI scale measure?
+similar question: What does the Consumer Price Index (CPI) gauge?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: bassett focuses on what to illustrate his idea?
+similar question: What aspect does bassett concentrate on to demonstrate his concept?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When was the Tower Theatre built?
+similar question: What year was the Tower Theatre constructed?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: If two thirds of the Rhine flows through the Maas, where doe the other one third flow through?
+similar question: What river does the remaining one third of the Rhine flow into?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What kind of cell did cynaobacteria enter long ago?
+similar question: What type of cell was inhabited by cyanobacteria a long time ago?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Approximately how many silver and gold objects does the V&A have it its collection?
+similar question: What is the total number of silver and gold items housed within the Victoria and Albert Museum's collection?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is another term for the pivot mounting?
+similar question: What is another name for the pivot point?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: The Brotherhood's members are against consuming what beverage?
+similar question: The Brotherhood's adherents disapprove of drinking what liquid.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Which theory states that Earth's features remained unchanged after forming in one single catastrophic event?
+similar question: What geological theory proposes that Earth's current landscape resulted from a single, massive and sudden catastrophe that occurred at the beginning of the planet's history?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: In cases with shared medium how is it delivered 
+similar question: In what ways is the transmission achieved when a common channel is used?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is an important personal decision for civil disobedients?
+similar question: What kind of crucial choice do civil disobedients typically face?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Where and when did the investigation of the plague pathogen begin?
+similar question: When and in which location was the inquiry into the plague pathogen initiated?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Taking evidence from witnesses is one of committees' what?
+similar question: What is one of the primary methods committees use to gather evidence?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: An igneous rock is a rock that crystallizes from what?
+similar question: What type of rock forms from the cooling and solidification of molten material?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How many modern types of primality tests for general numbers n are there? 
+similar question: What are the different types of general number primality tests that are currently known?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Approximately how books did Alexander Dyce bequeathed to the museum?
+similar question: What is the number of books that Alexander Dyce left to the museum?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How do cryptophyte chloroplasts arrange their pyrenoid and thylakoids?
+similar question: How are pyrenoids and thylakoids organized within the chloroplasts of cryptophytes?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When did Tesla enroll in Austrian Polytechnic?
+similar question: In what year did Nikola Tesla begin attending the Austrian Polytechnic?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who would a teacher's college be protecting?
+similar question: What institution would a teacher's college be safeguarding?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is the bond order of dioxygen molecules?
+similar question: What is the number of bonds present in a molecule of oxygen gas?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What type of movement is the Muslim Brotherhood?
+similar question: What classification does the Muslim Brotherhood belong to?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How many tackles did Von Miller get during the game?
+similar question: What was the total number of tackles made by Von Miller throughout the game?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Which president ended the Emergency Energy Conservation Act?
+similar question: Which president signed legislation terminating the Emergency Energy Conservation Act?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What did the Mongol elites wish Buyantu didn't do?
+similar question: What action did the Mongol elite wish Buyantu had not undertaken?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: In which year did Genghis Khan's grandson invade Kievan Rus'?
+similar question: In what year did the grandson of Genghis Khan lead a military invasion into the territory of Kievan Rus'?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who was elected President in November 1960?
+similar question: What individual was chosen to serve as the President in the elections held in November 1960?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How much did the CM weigh in kgs?
+similar question: What was the weight of the CM in kilograms?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What type of mixture was created to replace the pure oxygen atmosphere inside the cabin?
+similar question: What composition of gases was used to replace the atmospheric oxygen within the cabin?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What decreased in number between 1984 and 1991?
+similar question: What population group diminished between 1984 and 1991?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Thomas de Maiziere serves what role in the German cabinet?
+similar question: What position does Thomas de Maiziere hold in the German government?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What happened to Apollo 13?
+similar question: What was the outcome of the Apollo 13 mission?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is the break down of years at different level of education?
+similar question: What is the educational attainment distribution by level of education?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is the definition of agency as it relates to capabilities? 
+similar question: What does the concept of agency imply in terms of an individual's or entity's capabilities?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What field type is usually chosen for Super Bowl games?
+similar question: What kind of surface is typically used for Super Bowl games?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who is the present quarterback of the Broncos?
+similar question: What is the current quarterback for the Broncos?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What reason is given that you should also protest public companies?
+similar question: Why is protesting corporate entities in addition to governments considered necessary?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: How old was Katharina when she married Luther?
+similar question: At what age did Katharina marry Luther?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Where was Tesla's property sent?
+similar question: Where did Tesla's belongings end up?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Inequality in the presence of credit market imperfections has what kind of effect on human capital formation?
+similar question: What is the impact of credit market distortions on human capital accumulation?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What earlier market did the Grainger Market replace?
+similar question: What marketplace did the Grainger Market originally take the place of?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What might starch grains be a side effect of?
+similar question: What could be a consequence of consuming starch?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What book of the Bible discusses civil disobedience?
+similar question: Which biblical scripture deals with acts of nonviolent resistance?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who were two of the founders of the United Methodist Church?
+similar question: What were the names of the two key individuals who helped establish the United Methodist Church?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What Egyptian president jailed thousands of members of the Brotherhood?
+similar question: Which Egyptian leader imprisoned thousands of members of the Brotherhood?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who gave Tesla's eulogy? 
+similar question: Who delivered the eulogy for Tesla?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Where do ctenophora live?
+similar question: In which environments do ctenophora typically reside?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who is the producer of Doctor Who?
+similar question: What company is responsible for creating the television series Doctor Who?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What series was created by former Doctor Who producer Russell T. Davies?
+similar question: What series was conceived by the person who previously worked on Doctor Who?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What makes static friction go up or down in responce to contact characteristics between an object and the surface it is on?
+similar question: What factors influence the magnitude of static friction when an object interacts with a surface?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Where do nucleomorph genes transfer to?
+similar question: To which cellular component do nucleomorph genes relocate?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When was the Royal University of Warsaw established?
+similar question: When was the University of Warsaw founded?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What do the strains of y. pestis suggest abut the plague?
+similar question: What do the genetic variations of Yersinia pestis imply about the plague?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Though unkown, what are the most commonly ascribed attributes of L in relation to P
+similar question: What are the characteristics of L that are most commonly associated with P?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When a commission reached no decision, what happened?
+similar question: What occurred when the commission failed to make a decision?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What year did the university team up with Shimer College?
+similar question: In what year did Northwestern University form a partnership with Shimer College?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: After 1945, what challenged the French empire?
+similar question: What major obstacle did the French empire face after 1945?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is one main reason that civil disobedience is not recognized?
+similar question: What is a primary justification for civil disobedience not being acknowledged?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What month, day and year did Super Bowl 50 take place? 
+similar question: In which year, month, and day did Super Bowl 50 occur?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What is the application of prime numbers used in information technology which utilizes the fact that factoring very large prime numbers is very challenging?
+similar question: What information technology applications utilize the challenge of factoring large prime numbers to ensure secure data encryption?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: According to Luther what justifies us?
+similar question: What, according to Luther, grants us justification?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Which two Mongol leaders added Persia to the Mongol Empire?
+similar question: Who were the two Mongol leaders responsible for incorporating Persia into the Mongol Empire?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Who was the NFL Commissioner in early 2012?
+similar question: What person held the position of the NFL Commissioner at the start of 2012?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: What did John Dobson describe Newcastle as?
+similar question: What description did John Dobson give of Newcastle?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: Approximately how many adherents does the United Methodist Church have across the world?
+similar question: What is the approximate global membership of the United Methodist Church?
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+
+original question: When was the ABC Pictures division eventually dissolved?
+similar question: When did the ABC Pictures division cease to exist?
