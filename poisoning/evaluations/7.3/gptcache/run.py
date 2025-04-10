@@ -94,19 +94,19 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_new_dataset/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new_dataset/'
+prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_new_dataset_white/'
+output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new_dataset_white/'
 noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/noise_new_dataset/'
 datasets = [
-    'hotpotqa',
-    'nq',
+    # 'hotpotqa',
+    # 'nq',
     'trivia',
-    'wiki',
+    # 'wiki',
 ]
 
 prompt_injection_patterns = [
-    # 'white',
-    'black'
+    'white',
+    # 'black'
 ]
 
 configs = {
@@ -143,7 +143,7 @@ if __name__ == '__main__':
                     # load noise and target
                     with open(noise_file, 'r') as file:
                         all_noise = json.load(file)
-                    with open(prompt_file, 'r') as f:
+                    with open(output_file, 'r') as f:  
                         data = json.load(f)
                     try:
                         all_noise = [item['question'] for item in all_noise]
@@ -162,9 +162,11 @@ if __name__ == '__main__':
 
                     # Change: since each target question will have a noise set, 
                     #   we have to inject the noise every time.
-                    for item in data:
-                        
-                        injection_success = item['injection_success']
+                    for item in data:                
+                        if item['attack_success_white']:
+                            continue
+                                
+                        injection_success = False
                         cached_success = True
                         attack_success = False
                         similar_enough = False
@@ -172,8 +174,6 @@ if __name__ == '__main__':
                         question = item['question']
                         adv = item['white'] if pattern == 'white' else item['black']
                         target_answer = item['wrong']
-                        
-                        target_answer = target_answer.rstrip('.')
                         
                         setup_cache(threshold, top_k, noise_number)
                         inject_noise(question, correlation, noise_number,  all_noise)
@@ -183,6 +183,12 @@ if __name__ == '__main__':
                         
                         if 'This is a noise question' in attacker_response:
                             cached_success = False
+                            
+                        target_answer = target_answer.rstrip('.')
+                        attacker_response = attacker_response.rstrip('.')
+                        victim_response = victim_response.rstrip('.')
+                        if attacker_response == target_answer:
+                            injection_success = True
                     
                                             
                         if victim_response == attacker_response:
@@ -197,9 +203,11 @@ if __name__ == '__main__':
                             similar_cnt += 1
                                                                             
                         item[f'attacker_response_{pattern}'] = attacker_response
+                        item[f'victim_response_{pattern}'] = victim_response
                         item[f'attack_success_{pattern}'] = attack_success 
                         item[f'similar_enough_{pattern}'] = similar_enough
-                        item[f'cached_success{pattern}'] = cached_success
+                        item[f'cached_success_{pattern}'] = cached_success
+                        item[f'injection_success_{pattern}'] = injection_success
                             
                         # store adv to local
                         with open(output_file, "w") as file:
