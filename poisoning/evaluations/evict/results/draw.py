@@ -8,7 +8,7 @@ png_dir = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/plots/png/"
 # Dataset and cache sizes
 dataset_id = "squad"
 cache_sizes = [500, 1000, 2000]
-user_numbers = [1, 2, 3, 4, 5, 6]
+user_numbers = [0.01, 1, 2, 3, 4, 5, 6]
 
 # Plot configuration
 plt.style.use('ggplot')
@@ -37,7 +37,7 @@ if __name__ == "__main__":
             [item * 250 for item in user_numbers],
             attacker_freqs,
             label=f"{cache_size}",
-            linewidth=3, marker='o', markersize=7
+            linewidth=3, marker=None, markersize=7
         )
 
     # Add plot labels and title
@@ -53,8 +53,8 @@ if __name__ == "__main__":
     plt.legend(title="Cache Size", loc='upper left', fontsize=14, frameon=True, title_fontsize=14)
 
     # Save plot
-    eps_file = eps_dir + 'attacker_maintain_freq_vs_user_number.eps'
-    png_file = png_dir + 'attacker_maintain_freq_vs_user_number.png'
+    eps_file = eps_dir + 'eval_maintain.eps'
+    png_file = png_dir + 'eval_maintain.png'
     
     plt.tight_layout()  # Adjust layout to prevent clipping
     plt.savefig(eps_file, format='eps')

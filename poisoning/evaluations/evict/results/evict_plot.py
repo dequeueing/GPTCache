@@ -51,7 +51,7 @@ if __name__ == "__main__":
         plt.xticks(fontsize=14, fontweight='bold')
         plt.yticks(fontsize=14, fontweight='bold')
         plt.grid(True)
-        plt.legend(title="User Number", loc='upper right', fontsize=14, frameon=True, title_fontsize=14)
+        plt.legend(title="Number of User", loc='upper right', fontsize=14, frameon=True, title_fontsize=14)
         plt.tight_layout()
         
         eps_dir = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/plots/eps/"
