@@ -153,10 +153,10 @@ if __name__ == "__main__":
             #     item['cos_sim_white'] = item['cos_sim_black']
             #     item['sem_score_white'] = item['sem_score_black']
                 
-            item['attacker_response_black'] = item['attacker_response']
-            item['injection_success_black'] = item['injection_success']
-            del item['injection_success']
-            del item['attacker_response']
+            # item['attacker_response_black'] = item['attacker_response']
+            # item['injection_success_black'] = item['injection_success']
+            # del item['injection_success']
+            # del item['attacker_response']
             
             
             white = item['white']
