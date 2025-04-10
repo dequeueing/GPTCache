@@ -108,7 +108,7 @@ def generate(prompt):
 
 
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/whitebox/run_new_datasets/prompt_blackbox/'
+prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/whitebox/run_new_datasets/prompt_whitebox/'
 output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/whitebox/run_new_datasets/prompt_whitebox/'
 datasets = [
     'hotpotqa',
@@ -135,29 +135,34 @@ if __name__ == "__main__":
             wrong = item['wrong']
             
             # black box score
-            black_score = item['cos_sim_black'] + item['sem_score_black']
+            # black_score = item['cos_sim_black'] + item['sem_score_black']
             
             # craft whtie
-            adv_new, sim_new, score_new = craft_malicious_white_box_embedding_only(question, wrong, black_score)      
-            white_score = sim_new + score_new
-            print(adv_new)
-            print(sim_new)
-            print(score_new)
+            # adv_new, sim_new, score_new = craft_malicious_white_box_embedding_only(question, wrong, black_score)      
+            # white_score = sim_new + score_new
+            # print(adv_new)
+            # print(sim_new)
+            # print(score_new)
             
-            if white_score > black_score and score_new > 0.8:
-                item['white'] = adv_new
-                item['cos_sim_white'] = sim_new
-                item['sem_score_white'] = score_new
-            else:
-                item['white'] = black
-                item['cos_sim_white'] = item['cos_sim_black']
-                item['sem_score_white'] = item['sem_score_black']
+            # if white_score > black_score and score_new > 0.8:
+            #     item['white'] = adv_new
+            #     item['cos_sim_white'] = sim_new
+            #     item['sem_score_white'] = score_new
+            # else:
+            #     item['white'] = black
+            #     item['cos_sim_white'] = item['cos_sim_black']
+            #     item['sem_score_white'] = item['sem_score_black']
                 
             item['attacker_response_black'] = item['attacker_response']
             item['injection_success_black'] = item['injection_success']
-            item["cos_sim_white"] = cosine_sim(question, adv_new).item()
-            item["sem_score_white"] = semantic_score(question, adv_new).item()
-            item["euc_dist_white"] = euclidean_distance(question, adv_new).item()
+            del item['injection_success']
+            del item['attacker_response']
+            
+            
+            white = item['white']
+            item["cos_sim_white"] = cosine_sim(question, white).item()
+            item["sem_score_white"] = semantic_score(question, white).item()
+            item["euc_dist_white"] = euclidean_distance(question, white).item()
 
             with open(output_file, "w") as file:
                 json.dump(data, file, indent=4)
