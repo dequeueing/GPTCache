@@ -24,26 +24,44 @@ files = [
 # output_path = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/prompt-{model_ids[model_id]}/"
 output_path = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/data_prepare/text-to-image/generation/new-white-stable-diffusion-3.5-large/"
 
-if __name__ == '__main__':
-    random.seed(42)
-    for input_file in files:
-        with open(input_file, 'r') as file:
-            data = json.load(file)
+# if __name__ == '__main__':
+#     random.seed(42)
+#     for input_file in files:
+#         with open(input_file, 'r') as file:
+#             data = json.load(file)
             
-        record = {}
-        for index, item in enumerate(data):
-            prompt = item['white']
-            # prompt = item['prompt']
-            print(prompt)
-            image = generate(prompt)
+#         record = {}
+#         for index, item in enumerate(data):
+#             prompt = item['white']
+#             # prompt = item['prompt']
+#             print(prompt)
+#             image = generate(prompt)
             
-            # output_file = output_path + model_ids[model_id] + '/' + prompt.rstrip('.')  + ".png"
-            output_file = f"{output_path}{index}.png"
-            record[index] = prompt
-            image.save(output_file)
+#             # output_file = output_path + model_ids[model_id] + '/' + prompt.rstrip('.')  + ".png"
+#             output_file = f"{output_path}{index}.png"
+#             record[index] = prompt
+#             image.save(output_file)
             
-        for item in record:
-            print(f"{item}: {record[item]}")
+#         for item in record:
+#             print(f"{item}: {record[item]}")
         
 
-        
+if __name__ == '__main__':
+    # prompt = "A yellow cat sleeping on the bookshelf."
+    # prompt2 = "puppy Cycling run quarterbacks floors. A yellow cat sleeping on the bookshelf."
+    # image = generate(prompt2)
+    # image.save("cat.png")
+    
+    prompt1 = "A white puppy running on the tiled floor."
+    prompt2 = "A yellow cat sleeping on the bookshelf."
+    prompt3 = "puppy Cycling run quarterbacks floors. A yellow cat sleeping on the bookshelf."
+    prompt4 = "boiled WHITE Pupp furniture sprint. A yellow cat sleeping on the bookshelf."
+    
+    image = generate(prompt4)
+    image.save("cat_adv2.png")
+    
+    # image = generate(prompt2)
+    # image.save("cat.png")
+    
+    # image = generate(prompt3)
+    # image.save("cat_adv.png")

@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModel
 from sentence_transformers.cross_encoder import CrossEncoder
 
 
-num_iter = 50
+num_iter = 100
 threshold_target_function = 0.8
 
 def set_seed():

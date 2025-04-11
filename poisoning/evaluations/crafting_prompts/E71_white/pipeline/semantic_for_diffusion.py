@@ -4,9 +4,10 @@ from util_para import *
 threshold_sem = 0.8
 threshold_target_function = 0.8
 
-def craft_malicious_white_box_semantic_only(target_question, adv_existing, suffix_len=6):
+def craft_malicious_white_box_semantic_only(target_question, adv_existing, suffix_len=10):
     # Preprocess target question
     # target_question = target_question.strip() + " "
+    question_words = ['white', 'puppy', 'run', 'tile', 'floor']
     target_question = target_question.strip()
 
     # Prepare attacker prompt
@@ -18,7 +19,7 @@ def craft_malicious_white_box_semantic_only(target_question, adv_existing, suffi
     suffix_semantic = 'w' * suffix_len
 
     # attacker_query = attacker_query_base + suffix_semantic
-    attacker_query =  suffix_semantic + attacker_query_base
+    attacker_query =  suffix_semantic + ' ' +attacker_query_base
     
     
     suffix_semantic_start, suffix_semantic_end = find_semantic_suffix_indices(attacker_query, suffix_embedding, suffix_semantic, attacker_query_base)
@@ -76,6 +77,16 @@ def craft_malicious_white_box_semantic_only(target_question, adv_existing, suffi
                 base=attacker_query_base,
                 suffix_embed=suffix_embedding,
             )
+            
+            # filter question words
+            new = []
+            for suffix_text in new_adv_suffix_text:
+                new.append(suffix_text)
+                for sensitive in question_words:
+                    if sensitive in suffix_text:
+                        new.pop()
+                        break
+            new_adv_suffix_text = new  
             
             # logging.error(f"new_adv_suffix_text: \n{new_adv_suffix_text}")
 
@@ -172,21 +183,33 @@ if __name__ == "__main__":
     # print(score_new)
     
     # input_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_white_ms_marco.json"
-    input_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_white_ms_marco.json"
-    with open(input_file, 'r') as file:
-        data = json.load(file)
+    # with open(input_file, 'r') as file:
+    #     data = json.load(file)
         
     
-    for item in data:
-        if item['sem_score_white'] < 0.8:
-            adv = item['white']
-            question = item['question']
-            print(item)
-            adv_new, sim_new, score_new = craft_malicious_white_box_semantic_only(question, adv)
-            item['white'] = adv_new
-            item['cos_sim_white'] = sim_new
-            item['sem_score_white'] = score_new
+    # for item in data:
+    #     if item['sem_score_white'] < 0.8:
+    #         adv = item['white']
+    #         question = item['question']
+    #         print(item)
+    #         adv_new, sim_new, score_new = craft_malicious_white_box_semantic_only(question, adv)
+    #         item['white'] = adv_new
+    #         item['cos_sim_white'] = sim_new
+    #         item['sem_score_white'] = score_new
             
     
-    with open(input_file, 'w') as file:
-        json.dump(data, file, indent=4)
+    # with open(input_file, 'w') as file:
+    #     json.dump(data, file, indent=4)
+    
+    # question = "A white puppy running on the tiled floor."
+    # target = "A yellow cat sleeping on the bookshelf."
+    # adv_new, sim_new, score_new = craft_malicious_white_box_semantic_only(question, target)
+    # print(adv_new)
+    # print(sim_new)
+    # print(score_new)
+    
+    question = "A white puppy running on the tiled floor."
+    # # prompt2 = "puppy Cycling run quarterbacks floors. A yellow cat sleeping on the bookshelf."
+    prompt2 = "boiled WHITE Pupp furniture sprint. A yellow cat sleeping on the bookshelf."
+    print(semantic_score(question, prompt2))
+    print(cosine_sim(question, prompt2))
