@@ -102,6 +102,8 @@ datasets = [
     # 'nq',
     # 'trivia',
     # 'wiki',
+    # 'ms_marco'
+    ''
 ]
 
 prompt_injection_patterns = [
@@ -138,7 +140,10 @@ if __name__ == '__main__':
                     
                     prompt_file = prompt_path + f"{dataset_id}.json"
                     noise_file = noise_path + f"{dataset_id}.json"
-                    output_file = output_path + f"E73_new_dataset_gptcache_{pattern}_{dataset_id}.json"
+                    # output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_black_ms_marco.json"
+                    # output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_white_ms_marco.json"
+                    # output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_black_ms_marco.json"
+                    output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_white_ms_marco.json"
 
                     # load noise and target
                     with open(noise_file, 'r') as file:
@@ -163,8 +168,13 @@ if __name__ == '__main__':
                     # Change: since each target question will have a noise set, 
                     #   we have to inject the noise every time.
                     for item in data:                
-                        if item['attack_success_white']:
-                            continue
+                        # if item['attack success']:
+                        #     continue
+                        
+                        # get the sem and cosine data:
+                        # "cos_sim_white": 0.8056195974349976,
+                        # "sem_score_white": 0.9837311506271362,
+
                                 
                         injection_success = False
                         cached_success = True
@@ -174,6 +184,12 @@ if __name__ == '__main__':
                         question = item['question']
                         adv = item['white'] if pattern == 'white' else item['black']
                         target_answer = item['wrong']
+                        
+                        # TODO: comment this! 
+                        item['cos_sim_white'] = semantic_score(question, adv).item()
+                        item['sem_score_white'] = cosine_sim(question, adv).item()
+                        continue
+
                         
                         setup_cache(threshold, top_k, noise_number)
                         inject_noise(question, correlation, noise_number,  all_noise)
@@ -202,16 +218,17 @@ if __name__ == '__main__':
                         if similar_enough:
                             similar_cnt += 1
                                                                             
-                        item[f'attacker_response_{pattern}'] = attacker_response
-                        item[f'victim_response_{pattern}'] = victim_response
-                        item[f'attack_success_{pattern}'] = attack_success 
-                        item[f'similar_enough_{pattern}'] = similar_enough
-                        item[f'cached_success_{pattern}'] = cached_success
-                        item[f'injection_success_{pattern}'] = injection_success
+                        item[f'attacker response WHITE'] = attacker_response
+                        item[f'victim response WHITE'] = victim_response
+                        item[f'attack success WHITE'] = attack_success 
+                        item[f'similar enough WHITE'] = similar_enough
+                        item[f'injection success WHITE'] = injection_success
+                        item['recheck WHITE'] = True
+                        
                             
-                        # store adv to local
-                        with open(output_file, "w") as file:
-                            json.dump(data, file, indent=4)
+                    # store adv to local
+                    with open(output_file, "w") as file:
+                        json.dump(data, file, indent=4)
                             
                             
                     stat.append(
