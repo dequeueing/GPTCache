@@ -100,8 +100,10 @@ noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluatio
 datasets = [
     # 'hotpotqa',
     # 'nq',
-    # 'trivia',
+    'trivia',
     # 'wiki',
+    'ms_marco',
+    'squad'
 ]
 
 prompt_injection_patterns = [
@@ -143,7 +145,7 @@ if __name__ == '__main__':
                     # load noise and target
                     with open(noise_file, 'r') as file:
                         all_noise = json.load(file)
-                    with open(output_file, 'r') as f:  
+                    with open(prompt_file, 'r') as f:  
                         data = json.load(f)
                     try:
                         all_noise = [item['question'] for item in all_noise]
@@ -153,7 +155,12 @@ if __name__ == '__main__':
                     # sample noise, exclude the target question
                     target_question = [item['question'] for item in data]
                     all_noise = [item for item in all_noise if item not in target_question]
-                    all_noise = random.sample(all_noise, noise_number)
+                    all_noise = random.sample(all_noise, 1000)
+                    
+                    noise_file = f"/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/noise_selected_for_aws/{dataset_id}.json"
+                    with open(noise_file, 'w') as f:  
+                        json.dump(all_noise, f, indent=4)
+                    continue
                     
                     attack_cnt = 0
                     injection_cnt = 0
