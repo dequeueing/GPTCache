@@ -92,9 +92,9 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/prompts/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/result_strange/'
-noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.2/noise_id/'
+prompt_path = '/home/exouser/GPTCache/poisoning/evaluations/7.2/prompts/'
+output_path = '/home/exouser/GPTCache/poisoning/evaluations/7.2/result_strange/'
+noise_path = '/home/exouser/GPTCache/poisoning/evaluations/7.2/noise_id/'
 datasets = {
     "squad": "squad_targeted.json",
     # "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
@@ -103,7 +103,7 @@ datasets = {
 prompt_injection_patterns = [
     # 'dont_answer_PI_', 
     # 'ignore_PI_',
-    'ignore_no_repeat',
+    # 'ignore_no_repeat',
     'only',
 ]
 
@@ -141,6 +141,8 @@ if __name__ == '__main__':
                     output_file = output_path + f"E72_correlation_redo_{pattern}_{dataset_id}_{config}{independent_var}.json"
 
                     # load noise and target
+                    # print prompt file
+                    print(f'prompt_file: {prompt_file}')
                     with open(noise_file, 'r') as file:
                         all_noise = json.load(file)
                     with open(prompt_file, 'r') as f:
@@ -166,6 +168,7 @@ if __name__ == '__main__':
                         adv = item['white'] if pattern == 'only' else item['adv']
                         target_answer = item['wrong'].rstrip('.')
                         
+                        # setup caceh for each target question
                         setup_cache(threshold, top_k, noise_number)
                         inject_noise(question, correlation, noise_number,  all_noise)
                         

@@ -4,7 +4,7 @@ from transformers import pipeline
 import torch
 from typing import *
 import sys
-sys.path.insert(0, '/home/taojie_wang@idm.teecertlabs.com/GPTCache')
+sys.path.insert(0, '/home/exouser/GPTCache')
 from gptcache.adapter.langchain_models import LangChainLLMs
 from gptcache.adapter.api import init_similar_cache, put
 from gptcache.core import Cache, Config
@@ -54,7 +54,6 @@ model_path = "meta-llama/Llama-3.1-8B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForCausalLM.from_pretrained(
     model_path,
-    quantization_config=BitsAndBytesConfig(load_in_4bit=True),
     trust_remote_code=True,
     low_cpu_mem_usage=True,
 ).to(device)

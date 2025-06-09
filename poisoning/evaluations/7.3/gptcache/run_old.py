@@ -94,16 +94,15 @@ def get_normal_distribution(dist_mean: float, number: int, all_noise, seed: int 
     selected_indices = np.random.choice(len(all_noise), size=number, p=probabilities, replace=False)
     return [all_noise[i]['id'] for i in selected_indices]
 
-prompt_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_new_dataset_white/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new_dataset_white/'
-noise_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/noise_new_dataset/'
+prompt_path = '/home/exouser/GPTCache/poisoning/evaluations/7.3/gptcache/prompts_new_dataset_white/'
+output_path = '/home/exouser/GPTCache/poisoning/evaluations/7.3/gptcache/results_new_dataset_white/'
+noise_path = '/home/exouser/GPTCache/poisoning/evaluations/7.3/gptcache/noise_new_dataset/'
 datasets = [
     # 'hotpotqa',
     # 'nq',
     # 'trivia',
     # 'wiki',
-    # 'ms_marco'
-    ''
+    'ms_marco'
 ]
 
 prompt_injection_patterns = [
@@ -140,10 +139,7 @@ if __name__ == '__main__':
                     
                     prompt_file = prompt_path + f"{dataset_id}.json"
                     noise_file = noise_path + f"{dataset_id}.json"
-                    # output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_black_ms_marco.json"
-                    # output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_white_ms_marco.json"
-                    # output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_black_ms_marco.json"
-                    output_file = "/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_white_ms_marco.json"
+                    output_file = "/home/exouser/GPTCache/poisoning/evaluations/7.3/gptcache/results_new/E73_gptcache_white_ms_marco.json"
 
                     # load noise and target
                     with open(noise_file, 'r') as file:
@@ -186,9 +182,8 @@ if __name__ == '__main__':
                         target_answer = item['wrong']
                         
                         # TODO: comment this! 
-                        item['cos_sim_white'] = semantic_score(question, adv).item()
-                        item['sem_score_white'] = cosine_sim(question, adv).item()
-                        continue
+                        # item['cos_sim_white'] = semantic_score(question, adv).item()
+                        # item['sem_score_white'] = cosine_sim(question, adv).item()
 
                         
                         setup_cache(threshold, top_k, noise_number)
@@ -226,9 +221,9 @@ if __name__ == '__main__':
                         item['recheck WHITE'] = True
                         
                             
-                    # store adv to local
-                    with open(output_file, "w") as file:
-                        json.dump(data, file, indent=4)
+                        # store adv to local
+                        with open(output_file, "w") as file:
+                            json.dump(data, file, indent=4)
                             
                             
                     stat.append(

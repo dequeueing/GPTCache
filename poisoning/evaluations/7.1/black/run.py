@@ -2,6 +2,7 @@ import json
 import torch
 from util import *
 from typing import *
+import os
 
 from sentence_transformers import CrossEncoder
 from transformers import (
@@ -15,11 +16,12 @@ from transformers import (
 device = "cuda" 
 model_path = "meta-llama/Llama-3.1-8B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
+tokenizer.pad_token = tokenizer.eos_token  # Set pad token to eos token
 model = AutoModelForCausalLM.from_pretrained(
     model_path,
-    quantization_config=BitsAndBytesConfig(load_in_4bit=True),
     trust_remote_code=True,
     low_cpu_mem_usage=True,
+    pad_token_id=tokenizer.eos_token_id,  # Set pad token ID
 ).to(device)
 
 # Create a Hugging Face pipeline for text generation
@@ -28,7 +30,7 @@ pipe = pipeline(
     model=model,
     tokenizer=tokenizer,
     max_new_tokens=200,
-    do_sample=False,
+    do_sample=True,  # Enable sampling
     temperature=0.6,
     top_p=0.9,
     return_full_text=False,  # Only return the generated text, not the input
@@ -47,8 +49,11 @@ def check_inject_success(attacker_response, target_answer):
     return attacker_response == target_answer
 
 
-input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/prompts_final/'
-output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results_final/'
+# input_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/prompts_final/'
+# output_path = '/home/taojie_wang@idm.teecertlabs.com/GPTCache/poisoning/evaluations/7.1/black/results_final/'
+input_path = '/home/exouser/GPTCache/poisoning/evaluations/7.1/black/prompts/'
+output_path = '/home/exouser/GPTCache/poisoning/evaluations/7.1/black/results_final/'
+
 datasets = {
     "squad": "squad_targeted.json",
     "MedQuad-MedicalQnADataset": "MedQuad-MedicalQnADataset_targeted.json",
