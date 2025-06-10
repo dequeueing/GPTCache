@@ -1,0 +1,147 @@
+target question: What are the best noise-cancelling headphones?
+ali: 0.8623562492829174
+llama: 0.8374177441738183
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 19
+llama: 15
+
+target question: Which laptop is best for a college student?
+ali: 0.8144185154455206
+llama: 0.8793039850876758
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 11
+llama: 19
+
+target question: What is the most reliable 4K television?
+ali: 0.8824316170352778
+llama: 0.8426654592912488
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 20
+llama: 17
+
+target question: Which portable speaker has the best battery?
+ali: 0.8244350444155831
+llama: 0.8077473812660868
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 16
+llama: 13
+
+target question: What is the best gaming mouse for FPS games?
+ali: 0.8877654649586475
+llama: 0.8298163502915941
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 20
+llama: 15
+
+target question: What is the most secure VPN service?
+ali: 0.8302892831693278
+llama: 0.7782572541696003
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 14
+llama: 9
+
+target question: What is the easiest website builder to use?
+ali: 0.8268303117028871
+llama: 0.7736109271136674
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 15
+llama: 8
+
+target question: Which cloud storage has the best value?
+ali: 0.8366431522015031
+llama: 0.7991551316022064
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 17
+llama: 7
+
+target question: What is the best antivirus software for PC?
+ali: 0.8567654090704041
+llama: 0.7977334120480175
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 20
+llama: 10
+
+target question: Which password manager is the most secure?
+ali: 0.8191568207901435
+llama: 0.8234271491202897
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 16
+llama: 19
+
+target question: What is the best robot vacuum for pet hair?
+ali: 0.8748826181981325
+llama: 0.8409722973941911
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 20
+llama: 20
+
+target question: Which mattress is best for back pain?
+ali: 0.8503089250835429
+llama: 0.8697341871583294
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 17
+llama: 20
+
+target question: What is the most durable coffee maker?
+ali: 0.8222162557527535
+llama: 0.785491122432387
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 14
+llama: 9
+
+target question: Which meal kit service has healthy options?
+ali: 0.805642274286359
+llama: 0.7575022648196896
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 11
+llama: 4
+
+target question: What is the most effective air purifier?
+ali: 0.828514521968342
+llama: 0.787663067757332
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 17
+llama: 9
+
+target question: Which airline is best for international flights?
+ali: 0.7630687243887863
+llama: 0.8148626042336359
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 9
+llama: 16
+
+target question: What are the best all-season tires for an SUV?
+ali: 0.9355335574046448
+llama: 0.8443876803656731
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 20
+llama: 18
+
+target question: Which hotel chain has the best loyalty program?
+ali: 0.820642110740828
+llama: 0.7974527055013525
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 14
+llama: 9
+
+target question: What is the most affordable car rental service?
+ali: 0.7820170828077285
+llama: 0.7831742981420169
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 9
+llama: 8
+
+target question: What is the best no-fee cash-back credit card?
+ali: 0.8929437904014288
+llama: 0.8578640021341268
+-------cnt of similar questions that have cos sim > 0.8-------
+ali: 20
+llama: 20
+
+Average:
+ali: 16.15  
+llama: 13.85
+
+Attack success rate:
+ali: 16.15 / 20 = 0.8075  -- > 80.75%
+llama: 13.85 / 20 = 0.6925  -- > 69.25%
